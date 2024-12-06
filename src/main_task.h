@@ -16,6 +16,7 @@
     "MAIN_TASK_Initialize" and "MAIN_TASK_Tasks" prototypes) and some of them are only used
     internally by the application (such as the "MAIN_TASK_STATES" definition).  Both
     are defined here for convenience.
+ * //os pedros trabalham bue
 *******************************************************************************/
 
 #ifndef _MAIN_TASK_H
