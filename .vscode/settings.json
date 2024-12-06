@@ -1,0 +1,6 @@
+{
+    "mplab.clangd.arguments": [
+        "--compile-commands-dir=/home/pedroferreira/DEV/SCE_VCU_FreeRTOS/_build/SCE_VCU_FreeRTOS/default"
+    ],
+    "mplab.clangd.path": "/opt/microchip/xc32/v4.45/bin/xc32-clangd"
+}

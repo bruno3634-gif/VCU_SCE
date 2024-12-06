@@ -1,0 +1,6 @@
+/home/pedroferreira/DEV/SCE_VCU_FreeRTOS/_build/SCE_VCU_FreeRTOS/default/CMakeFiles/SCE_VCU_FreeRTOS_default_assembleWithPreprocess.dir
+/home/pedroferreira/DEV/SCE_VCU_FreeRTOS/_build/SCE_VCU_FreeRTOS/default/CMakeFiles/SCE_VCU_FreeRTOS_default_compile.dir
+/home/pedroferreira/DEV/SCE_VCU_FreeRTOS/_build/SCE_VCU_FreeRTOS/default/CMakeFiles/SCE_VCU_FreeRTOS_default_default.elf.dir
+/home/pedroferreira/DEV/SCE_VCU_FreeRTOS/_build/SCE_VCU_FreeRTOS/default/CMakeFiles/SCE_VCU_FreeRTOS_default_Bin2Hex.dir
+/home/pedroferreira/DEV/SCE_VCU_FreeRTOS/_build/SCE_VCU_FreeRTOS/default/CMakeFiles/edit_cache.dir
+/home/pedroferreira/DEV/SCE_VCU_FreeRTOS/_build/SCE_VCU_FreeRTOS/default/CMakeFiles/rebuild_cache.dir

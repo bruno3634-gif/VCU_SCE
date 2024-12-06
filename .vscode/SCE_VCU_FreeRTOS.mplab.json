@@ -1,0 +1,602 @@
+{
+    "importedFrom": "file:///home/pedroferreira/DEV/SCE_VCU/SCE_VCU_FreeRTOS.X",
+    "version": "1.3",
+    "configurations": [
+        {
+            "name": "default",
+            "id": "conf1",
+            "targetDevice": "PIC32MK1024MCM064",
+            "imageType": "application",
+            "platformTool": "default-pickit3",
+            "packs": [
+                {
+                    "name": "PIC32MK-MC_DFP",
+                    "vendor": "Microchip",
+                    "version": "1.11.151"
+                }
+            ],
+            "fileSet": "MPLAB X Virtual Filesystem",
+            "toolchain": "default-XC32",
+            "imagePath": "./out/SCE_VCU_FreeRTOS/default.elf"
+        }
+    ],
+    "propertyGroups": [
+        {
+            "name": "default-XC32",
+            "type": "toolchain",
+            "provider": "microchip.toolchains:xc32@4.45",
+            "properties": {
+                "compiler.additional-warnings": true,
+                "compiler.addresss-attribute-use": false,
+                "compiler.appendMe": "",
+                "compiler.enable-app-io": false,
+                "compiler.enable-omit-frame-pointer": false,
+                "compiler.enable-symbols": true,
+                "compiler.enable-unroll-loops": false,
+                "compiler.exclude-floating-point": false,
+                "compiler.extra-include-directories": "src;src/config/default;src/third_party/rtos/FreeRTOS/Source/include;src/third_party/rtos/FreeRTOS/Source/portable/MPLAB/PIC32MK",
+                "compiler.generate-16-bit-code": false,
+                "compiler.generate-micro-compressed-code": false,
+                "compiler.isolate-each-function": true,
+                "compiler.make-warnings-into-errors": true,
+                "compiler.optimization-level": "-O1",
+                "compiler.place-data-into-section": true,
+                "compiler.post-instruction-scheduling": "default",
+                "compiler.pre-instruction-scheduling": "default",
+                "compiler.preprocessor-macros": "",
+                "compiler.strict-ansi": false,
+                "compiler.support-ansi": false,
+                "compiler.tentative-definitions": "-fno-common",
+                "compiler.toplevel-reordering": "",
+                "compiler.unaligned-access": "",
+                "compiler.use-cci": false,
+                "compiler.use-iar": false,
+                "compiler.use-indirect-calls": false,
+                "compiler++.additional-warnings": false,
+                "compiler++.addresss-attribute-use": false,
+                "compiler++.appendMe": "",
+                "compiler++.check-new": false,
+                "compiler++.eh-specs": true,
+                "compiler++.enable-app-io": false,
+                "compiler++.enable-omit-frame-pointer": false,
+                "compiler++.enable-symbols": true,
+                "compiler++.enable-unroll-loops": false,
+                "compiler++.exceptions": true,
+                "compiler++.exclude-floating-point": false,
+                "compiler++.extra-include-directories": "src;src/config/default;src/third_party/rtos/FreeRTOS/Source/include;src/third_party/rtos/FreeRTOS/Source/portable/MPLAB/PIC32MK",
+                "compiler++.generate-16-bit-code": false,
+                "compiler++.generate-micro-compressed-code": false,
+                "compiler++.isolate-each-function": true,
+                "compiler++.make-warnings-into-errors": false,
+                "compiler++.optimization-level": "-O1",
+                "compiler++.place-data-into-section": false,
+                "compiler++.post-instruction-scheduling": "default",
+                "compiler++.pre-instruction-scheduling": "default",
+                "compiler++.preprocessor-macros": "",
+                "compiler++.rtti": true,
+                "compiler++.strict-ansi": false,
+                "compiler++.toplevel-reordering": "",
+                "compiler++.unaligned-access": "",
+                "compiler++.use-cci": false,
+                "compiler++.use-iar": false,
+                "compiler++.use-indirect-calls": false,
+                "assembler.appendMe": "",
+                "assembler.assembler-symbols": "",
+                "assembler.enable-symbols": true,
+                "assembler.exclude-floating-point-library": false,
+                "assembler.expand-macros": false,
+                "assembler.extra-include-directories-for-assembler": "src/config/default;src/third_party/rtos/FreeRTOS/Source/include;src/third_party/rtos/FreeRTOS/Source/portable/MPLAB/PIC32MK",
+                "assembler.extra-include-directories-for-preprocessor": "src/config/default;src/third_party/rtos/FreeRTOS/Source/include;src/third_party/rtos/FreeRTOS/Source/portable/MPLAB/PIC32MK",
+                "assembler.false-conditionals": false,
+                "assembler.generate-16-bit-code": false,
+                "assembler.generate-micro-compressed-code": false,
+                "assembler.keep-locals": false,
+                "assembler.list-assembly": false,
+                "assembler.list-source": false,
+                "assembler.list-symbols": false,
+                "assembler.oXC32asm-list-to-file": false,
+                "assembler.omit-debug-dirs": false,
+                "assembler.omit-forms": false,
+                "assembler.preprocessor-macros": "",
+                "assembler.warning-level": "",
+                "archiver.additional-options-chop-files": false,
+                "linker.additional-options-use-response-files": false,
+                "linker.additional-options-write-sla": false,
+                "linker.allocate-dinit": false,
+                "linker.appendMe": "",
+                "linker.code-dinit": false,
+                "linker.ebase-addr": "",
+                "linker.enable-check-sections": false,
+                "linker.exclude-floating-point-library": false,
+                "linker.exclude-standard-libraries": false,
+                "linker.extra-lib-directories": "",
+                "linker.fill-flash-options-addr": "",
+                "linker.fill-flash-options-const": "",
+                "linker.fill-flash-options-how": "0",
+                "linker.fill-flash-options-inc-const": "1",
+                "linker.fill-flash-options-increment": "",
+                "linker.fill-flash-options-seq": "",
+                "linker.fill-flash-options-what": "0",
+                "linker.generate-16-bit-code": false,
+                "linker.generate-cross-reference-file": false,
+                "linker.generate-micro-compressed-code": false,
+                "linker.heap-size": "512",
+                "linker.input-libraries": "",
+                "linker.kseg-length": "",
+                "linker.kseg-origin": "",
+                "linker.linker-symbols": "",
+                "linker.map-file": "",
+                "linker.no-device-startup-code": true,
+                "linker.no-startup-files": false,
+                "linker.oXC32ld-extra-opts": "",
+                "linker.optimization-level": "",
+                "linker.preprocessor-macros": "",
+                "linker.remove-unused-sections": true,
+                "linker.report-memory-usage": false,
+                "linker.serial-length": "",
+                "linker.serial-origin": "",
+                "linker.stack-size": "",
+                "linker.symbol-stripping": "",
+                "linker.trace-symbols": "",
+                "linker.warn-section-align": false,
+                "coverage.coverage-enable": "",
+                "coverage.stack-guidance": false,
+                "global.common-include-directories": "",
+                "global.gp-relative-option": "",
+                "global.legacy-libc": true,
+                "global.mdtcm": "",
+                "global.mitcm": "",
+                "global.mstacktcm": false,
+                "global.omit-pack-options": "1",
+                "global.relaxed-math": false,
+                "global.save-temps": false,
+                "global.stack-smashing": "",
+                "global.wpo-lto": false
+            }
+        },
+        {
+            "name": "tool-base",
+            "type": "tool",
+            "provider": "microchip.tool-*:generic",
+            "properties": {
+                "ADC": true,
+                "AutoSelectMemRanges": "auto",
+                "CAN1": true,
+                "CAN2": true,
+                "CAN3": true,
+                "CAN4": true,
+                "CHANGE NOTICE A": true,
+                "CHANGE NOTICE B": true,
+                "CHANGE NOTICE C": true,
+                "CHANGE NOTICE D": true,
+                "CHANGE NOTICE E": true,
+                "CHANGE NOTICE F": true,
+                "CHANGE NOTICE G": true,
+                "CMP": true,
+                "CTMU": true,
+                "DMA": true,
+                "Freeze All Other Peripherals": true,
+                "HLVD": true,
+                "I2C 1": true,
+                "I2C 2": true,
+                "I2C 3": true,
+                "I2C 4": true,
+                "INPUT CAPTURE 1": true,
+                "INPUT CAPTURE 10": true,
+                "INPUT CAPTURE 11": true,
+                "INPUT CAPTURE 12": true,
+                "INPUT CAPTURE 13": true,
+                "INPUT CAPTURE 14": true,
+                "INPUT CAPTURE 15": true,
+                "INPUT CAPTURE 16": true,
+                "INPUT CAPTURE 2": true,
+                "INPUT CAPTURE 3": true,
+                "INPUT CAPTURE 4": true,
+                "INPUT CAPTURE 5": true,
+                "INPUT CAPTURE 6": true,
+                "INPUT CAPTURE 7": true,
+                "INPUT CAPTURE 8": true,
+                "INPUT CAPTURE 9": true,
+                "INTERRUPT CONTROL": true,
+                "OUTPUT COMPARE 1": true,
+                "OUTPUT COMPARE 10": true,
+                "OUTPUT COMPARE 11": true,
+                "OUTPUT COMPARE 12": true,
+                "OUTPUT COMPARE 13": true,
+                "OUTPUT COMPARE 14": true,
+                "OUTPUT COMPARE 15": true,
+                "OUTPUT COMPARE 16": true,
+                "OUTPUT COMPARE 2": true,
+                "OUTPUT COMPARE 3": true,
+                "OUTPUT COMPARE 4": true,
+                "OUTPUT COMPARE 5": true,
+                "OUTPUT COMPARE 6": true,
+                "OUTPUT COMPARE 7": true,
+                "OUTPUT COMPARE 8": true,
+                "OUTPUT COMPARE 9": true,
+                "PARALLEL MASTER/SLAVE PORT": true,
+                "REAL TIME CLOCK": true,
+                "REFERENCE CLOCK1": true,
+                "REFERENCE CLOCK2": true,
+                "REFERENCE CLOCK3": true,
+                "REFERENCE CLOCK4": true,
+                "SPI/I2S 1": true,
+                "SPI/I2S 2": true,
+                "SPI/I2S 3": true,
+                "SPI/I2S 4": true,
+                "SPI/I2S 5": true,
+                "SPI/I2S 6": true,
+                "SecureSegment.SegmentProgramming": "FullChipProgramming",
+                "TIMER1": true,
+                "TIMER2": true,
+                "TIMER3": true,
+                "TIMER4": true,
+                "TIMER5": true,
+                "TIMER6": true,
+                "TIMER7": true,
+                "TIMER8": true,
+                "TIMER9": true,
+                "ToolFirmwareFilePath": "Press to browse for a specific firmware version",
+                "ToolFirmwareOption.UseLatestFirmware": true,
+                "UART1": true,
+                "UART2": true,
+                "UART3": true,
+                "UART4": true,
+                "UART5": true,
+                "UART6": true,
+                "debugoptions.debug-startup": "Use system settings",
+                "debugoptions.reset-behaviour": "Use system settings",
+                "debugoptions.useswbreakpoints": false,
+                "event.recorder.debugger.behavior": "Running",
+                "event.recorder.enabled": false,
+                "event.recorder.scvd.files": "",
+                "firmware.download.all": false,
+                "hwtoolclock.frcindebug": false,
+                "lastid": "",
+                "memories.aux": false,
+                "memories.bootflash": true,
+                "memories.configurationmemory": true,
+                "memories.configurationmemory2": true,
+                "memories.dataflash": true,
+                "memories.eeprom": true,
+                "memories.flashdata": true,
+                "memories.id": true,
+                "memories.instruction.ram": true,
+                "memories.instruction.ram.ranges": "${memories.instruction.ram.ranges}",
+                "memories.programmemory": true,
+                "memories.programmemory.ranges": "1d000000-1d0fffff",
+                "poweroptions.powerenable": false,
+                "programmertogo.imagename": "",
+                "programoptions.donoteraseauxmem": false,
+                "programoptions.eraseb4program": true,
+                "programoptions.pgmspeed": "2",
+                "programoptions.preservedataflash": false,
+                "programoptions.preservedataflash.ranges": "${programoptions.preservedataflash.ranges}",
+                "programoptions.preserveeeprom": false,
+                "programoptions.preserveeeprom.ranges": "",
+                "programoptions.preserveprogram.ranges": "",
+                "programoptions.preserveprogramrange": false,
+                "programoptions.preserveuserid": false,
+                "programoptions.programcalmem": false,
+                "programoptions.programuserotp": false,
+                "programoptions.testmodeentrymethod": "VDDFirst",
+                "programoptions.usehighvoltageonmclr": false,
+                "programoptions.uselvpprogramming": false,
+                "voltagevalue": "3.25"
+            }
+        },
+        {
+            "name": "default-tool-base",
+            "extend": "tool-base",
+            "type": "tool",
+            "provider": "microchip.tool-*:generic",
+            "properties": {}
+        },
+        {
+            "name": "default-pickit3",
+            "extend": "default-tool-base",
+            "type": "tool",
+            "provider": "microchip.tool-*:pickit3",
+            "properties": {}
+        }
+    ],
+    "fileSets": [
+        {
+            "name": "MPLAB X Virtual Filesystem",
+            "contains": [
+                "Header Files",
+                "Important Files",
+                "Linker Files",
+                "Source Files"
+            ]
+        },
+        {
+            "name": "Header Files",
+            "contains": [
+                "config",
+                "FreeRTOS"
+            ],
+            "files": [
+                "src/receiver.h",
+                "src/sender2.h",
+                "src/sender1.h"
+            ],
+            "encoding": "ISO-8859-1"
+        },
+        {
+            "name": "config",
+            "contains": [
+                "default"
+            ]
+        },
+        {
+            "name": "default",
+            "contains": [
+                "peripheral"
+            ],
+            "files": [
+                "src/config/default/definitions.h",
+                "src/config/default/device.h",
+                "src/config/default/toolchain_specifics.h",
+                "src/config/default/FreeRTOSConfig.h",
+                "src/config/default/interrupts.h",
+                "src/config/default/sys_tasks.h",
+                "src/config/default/user.h",
+                "src/config/default/configuration.h"
+            ],
+            "encoding": "ISO-8859-1"
+        },
+        {
+            "name": "peripheral",
+            "contains": [
+                "clk",
+                "evic",
+                "gpio",
+                "uart"
+            ]
+        },
+        {
+            "name": "clk",
+            "files": [
+                "src/config/default/peripheral/clk/plib_clk.h"
+            ],
+            "encoding": "ISO-8859-1"
+        },
+        {
+            "name": "evic",
+            "files": [
+                "src/config/default/peripheral/evic/plib_evic.h"
+            ],
+            "encoding": "ISO-8859-1"
+        },
+        {
+            "name": "gpio",
+            "files": [
+                "src/config/default/peripheral/gpio/plib_gpio.h"
+            ],
+            "encoding": "ISO-8859-1"
+        },
+        {
+            "name": "uart",
+            "files": [
+                "src/config/default/peripheral/uart/plib_uart1.h",
+                "src/config/default/peripheral/uart/plib_uart_common.h"
+            ],
+            "encoding": "ISO-8859-1"
+        },
+        {
+            "name": "FreeRTOS",
+            "contains": [
+                "Source"
+            ]
+        },
+        {
+            "name": "Source",
+            "contains": [
+                "include",
+                "portable"
+            ]
+        },
+        {
+            "name": "include",
+            "files": [
+                "src/third_party/rtos/FreeRTOS/Source/include/semphr.h",
+                "src/third_party/rtos/FreeRTOS/Source/include/event_groups.h",
+                "src/third_party/rtos/FreeRTOS/Source/include/FreeRTOS.h",
+                "src/third_party/rtos/FreeRTOS/Source/include/projdefs.h",
+                "src/third_party/rtos/FreeRTOS/Source/include/stream_buffer.h",
+                "src/third_party/rtos/FreeRTOS/Source/include/stack_macros.h",
+                "src/third_party/rtos/FreeRTOS/Source/include/portable.h",
+                "src/third_party/rtos/FreeRTOS/Source/include/list.h",
+                "src/third_party/rtos/FreeRTOS/Source/include/queue.h",
+                "src/third_party/rtos/FreeRTOS/Source/include/mpu_prototypes.h",
+                "src/third_party/rtos/FreeRTOS/Source/include/mpu_wrappers.h",
+                "src/third_party/rtos/FreeRTOS/Source/include/message_buffer.h",
+                "src/third_party/rtos/FreeRTOS/Source/include/task.h",
+                "src/third_party/rtos/FreeRTOS/Source/include/deprecated_definitions.h",
+                "src/third_party/rtos/FreeRTOS/Source/include/timers.h",
+                "src/third_party/rtos/FreeRTOS/Source/include/croutine.h"
+            ],
+            "encoding": "ISO-8859-1"
+        },
+        {
+            "name": "portable",
+            "contains": [
+                "MPLAB"
+            ]
+        },
+        {
+            "name": "MPLAB",
+            "contains": [
+                "PIC32MK"
+            ]
+        },
+        {
+            "name": "PIC32MK",
+            "files": [
+                "src/third_party/rtos/FreeRTOS/Source/portable/MPLAB/PIC32MK/ISR_Support.h",
+                "src/third_party/rtos/FreeRTOS/Source/portable/MPLAB/PIC32MK/portmacro.h"
+            ],
+            "encoding": "ISO-8859-1"
+        },
+        {
+            "name": "Important Files",
+            "files": [
+                "SCE_VCU_FreeRTOS.X/Makefile",
+                "SCE_VCU_FreeRTOS.X/SCE_VCU_FreeRTOS.mc3"
+            ],
+            "encoding": "ISO-8859-1"
+        },
+        {
+            "name": "Linker Files",
+            "contains": [
+                "config_2"
+            ],
+            "translator": "toolchain:linker"
+        },
+        {
+            "name": "config_2",
+            "contains": [
+                "default_2"
+            ]
+        },
+        {
+            "name": "default_2",
+            "files": [
+                "src/config/default/p32MK1024MCM064.ld"
+            ],
+            "encoding": "ISO-8859-1"
+        },
+        {
+            "name": "Source Files",
+            "contains": [
+                "config_3",
+                "FreeRTOS_2"
+            ],
+            "files": [
+                "src/main.c",
+                "src/receiver.c",
+                "src/sender1.c",
+                "src/sender2.c"
+            ],
+            "encoding": "ISO-8859-1",
+            "translator": "toolchain:compiler"
+        },
+        {
+            "name": "config_3",
+            "contains": [
+                "default_3"
+            ]
+        },
+        {
+            "name": "default_3",
+            "contains": [
+                "peripheral_2",
+                "stdio"
+            ],
+            "files": [
+                "src/config/default/exceptions.c",
+                "src/config/default/initialization.c",
+                "src/config/default/interrupts.c",
+                "src/config/default/freertos_hooks.c",
+                "src/config/default/interrupts_a.S",
+                "src/config/default/tasks.c"
+            ],
+            "encoding": "ISO-8859-1"
+        },
+        {
+            "name": "peripheral_2",
+            "contains": [
+                "clk_2",
+                "evic_2",
+                "gpio_2",
+                "uart_2"
+            ]
+        },
+        {
+            "name": "clk_2",
+            "files": [
+                "src/config/default/peripheral/clk/plib_clk.c"
+            ],
+            "encoding": "ISO-8859-1"
+        },
+        {
+            "name": "evic_2",
+            "files": [
+                "src/config/default/peripheral/evic/plib_evic.c"
+            ],
+            "encoding": "ISO-8859-1"
+        },
+        {
+            "name": "gpio_2",
+            "files": [
+                "src/config/default/peripheral/gpio/plib_gpio.c"
+            ],
+            "encoding": "ISO-8859-1"
+        },
+        {
+            "name": "uart_2",
+            "files": [
+                "src/config/default/peripheral/uart/plib_uart1.c"
+            ],
+            "encoding": "ISO-8859-1"
+        },
+        {
+            "name": "stdio",
+            "files": [
+                "src/config/default/stdio/xc32_monitor.c"
+            ],
+            "encoding": "ISO-8859-1"
+        },
+        {
+            "name": "FreeRTOS_2",
+            "contains": [
+                "Source_2"
+            ]
+        },
+        {
+            "name": "Source_2",
+            "contains": [
+                "portable_2"
+            ],
+            "files": [
+                "src/third_party/rtos/FreeRTOS/Source/list.c",
+                "src/third_party/rtos/FreeRTOS/Source/queue.c",
+                "src/third_party/rtos/FreeRTOS/Source/timers.c",
+                "src/third_party/rtos/FreeRTOS/Source/FreeRTOS_tasks.c",
+                "src/third_party/rtos/FreeRTOS/Source/croutine.c",
+                "src/third_party/rtos/FreeRTOS/Source/event_groups.c",
+                "src/third_party/rtos/FreeRTOS/Source/stream_buffer.c"
+            ],
+            "encoding": "ISO-8859-1"
+        },
+        {
+            "name": "portable_2",
+            "contains": [
+                "MemMang",
+                "MPLAB_2"
+            ]
+        },
+        {
+            "name": "MemMang",
+            "files": [
+                "src/third_party/rtos/FreeRTOS/Source/portable/MemMang/heap_1.c"
+            ],
+            "encoding": "ISO-8859-1"
+        },
+        {
+            "name": "MPLAB_2",
+            "contains": [
+                "PIC32MK_2"
+            ]
+        },
+        {
+            "name": "PIC32MK_2",
+            "files": [
+                "src/third_party/rtos/FreeRTOS/Source/portable/MPLAB/PIC32MK/port.c",
+                "src/third_party/rtos/FreeRTOS/Source/portable/MPLAB/PIC32MK/port_asm.S"
+            ],
+            "encoding": "ISO-8859-1"
+        }
+    ]
+}
