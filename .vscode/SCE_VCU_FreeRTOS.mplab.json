@@ -7,6 +7,7 @@
             "id": "conf1",
             "targetDevice": "PIC32MK1024MCM064",
             "imageType": "application",
+            "imagePath": "./out/SCE_VCU_FreeRTOS/default.elf",
             "platformTool": "default-pickit3",
             "packs": [
                 {
@@ -16,8 +17,7 @@
                 }
             ],
             "fileSet": "MPLAB X Virtual Filesystem",
-            "toolchain": "default-XC32",
-            "imagePath": "./out/SCE_VCU_FreeRTOS/default.elf"
+            "toolchain": "default-XC32"
         }
     ],
     "propertyGroups": [
@@ -308,6 +308,20 @@
                 "Important Files",
                 "Linker Files",
                 "Source Files"
+            ],
+            "files": [
+                {
+                    "fileSet": "Header Files"
+                },
+                {
+                    "fileSet": "Important Files"
+                },
+                {
+                    "fileSet": "Linker Files"
+                },
+                {
+                    "fileSet": "Source Files"
+                }
             ]
         },
         {

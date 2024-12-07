@@ -37,6 +37,7 @@
 #include "semphr.h"
 #include "definitions.h"
 #include "queue.h"
+#include "../SCE_VCU_FreeRTOS.X/queue_manager.h"
 
 
 
@@ -66,6 +67,12 @@ APPS_TASK_DATA apps_taskData;
 static SemaphoreHandle_t ADC0_SEMAPHORE;
 static SemaphoreHandle_t ADC3_SEMAPHORE;
 
+
+typedef struct {
+    uint16_t adc0value;
+    uint16_t adc3value;
+} ADCValues_t;
+
 // *****************************************************************************
 // *****************************************************************************
 // Section: Application Callback Functions
@@ -78,7 +85,7 @@ static SemaphoreHandle_t ADC3_SEMAPHORE;
 
 
 void ADC0_callback(ADCHS_CHANNEL_NUM channel, uintptr_t context) {
-     
+
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     //printf("\n\n\rADC0 int\n\n\r");
     ADCHS_ChannelResultGet(ADCHS_CH0);
@@ -141,9 +148,11 @@ void APPS_TASK_Initialize(void) {
 
     vSemaphoreCreateBinary(ADC0_SEMAPHORE);
     xSemaphoreTake(ADC0_SEMAPHORE, portMAX_DELAY);
-    
-        vSemaphoreCreateBinary(ADC3_SEMAPHORE);
+
+    vSemaphoreCreateBinary(ADC3_SEMAPHORE);
     xSemaphoreTake(ADC3_SEMAPHORE, portMAX_DELAY);
+
+    Inverter_control_Queue = xQueueCreate(10, sizeof ( long));
 }
 
 /******************************************************************************
@@ -173,24 +182,18 @@ void APPS_TASK_Tasks(void) {
 
         case APPS_TASK_STATE_SERVICE_TASKS:
         {
+            static portBASE_TYPE xStatus;
+
             ADCHS_ChannelConversionStart(ADCHS_CH3);
             ADCHS_ChannelConversionStart(ADCHS_CH0);
-            
+
             if (xSemaphoreTake(ADC0_SEMAPHORE, portMAX_DELAY) == pdTRUE) {
                 // Task unblocks here when semaphore is given
-                
             }
-            
+
             if (xSemaphoreTake(ADC3_SEMAPHORE, portMAX_DELAY) == pdTRUE) {
                 //Task unblocks here when semaphore is given
-
-                
             }
-
-
-            
-
-            //        printf("\n\n\r Ended conversion\n\n\r");
 
             uint16_t adc0value = ADCHS_ChannelResultGet(ADCHS_CH0);
             uint16_t adc3value = ADCHS_ChannelResultGet(ADCHS_CH3);
@@ -199,12 +202,22 @@ void APPS_TASK_Tasks(void) {
             float voltage3 = adc3value * 3.3 / 4096;
             voltage0 = voltage0 + 0;
             voltage3 = voltage3 + 0;
-            printf("APPS 1:%f,APPS 3:%f\r\n", voltage0, voltage3);
-//            uint8_t message_to_queue = voltage0 * 100/3.3;
-            //LED_F1_Toggle();
+            //printf("APPS 1:%f,APPS 3:%f\r\n", voltage0, voltage3);
+
             LED_RB10_Toggle();
-            // printf("\n\rAPPS\n\r");
- //           xQueueSend(Inverter_control_Queue,&message_to_queue,portMAX_DELAY);
+
+            // Create an instance of the structure and populate it
+            ADCValues_t adcValues;
+            adcValues.adc0value = adc0value;
+            adcValues.adc3value = adc3value;
+
+
+            // Send the structure to the queue
+            xStatus = xQueueSend(Inverter_control_Queue, &adcValues, portMAX_DELAY);
+            if (xStatus != pdPASS) {
+                // Handle error: Data was not sent to the queue
+            }
+
             break;
         }
 
