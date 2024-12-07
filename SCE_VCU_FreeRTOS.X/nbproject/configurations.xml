@@ -165,7 +165,6 @@
       <itemPath>../src/r2d_task.c</itemPath>
       <itemPath>../src/inverter_task.c</itemPath>
     </logicalFolder>
-    <itemPath>queues.h</itemPath>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
