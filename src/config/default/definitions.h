@@ -57,6 +57,7 @@
 #include "peripheral/gpio/plib_gpio.h"
 #include "peripheral/evic/plib_evic.h"
 #include "FreeRTOS.h"
+#include "queue.h"
 #include "task.h"
 #include "can_send_task.h"
 #include "apps_task.h"

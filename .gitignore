@@ -17,3 +17,5 @@
 **/*.KEIL/Objects
 **/*.KEIL/*.uvguix.*
 Gemfile*
+/SCE_VCU_FreeRTOS.X/build/
+/SCE_VCU_FreeRTOS.X/dist/

@@ -79,6 +79,7 @@
       <itemPath>../src/voltage_measurement_task.h</itemPath>
       <itemPath>../src/r2d_task.h</itemPath>
       <itemPath>../src/inverter_task.h</itemPath>
+      <itemPath>queue_manager.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -164,8 +165,8 @@
       <itemPath>../src/voltage_measurement_task.c</itemPath>
       <itemPath>../src/r2d_task.c</itemPath>
       <itemPath>../src/inverter_task.c</itemPath>
+      <itemPath>queue_manager.c</itemPath>
     </logicalFolder>
-    <itemPath>queues.h</itemPath>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
