@@ -53,6 +53,7 @@
 #include "configuration.h"
 #include "definitions.h"
 #include "sys_tasks.h"
+#include "../SCE_VCU_FreeRTOS.X/queue_manager.h"
 
 //QueueHandle_t Inverter_control_Queue;
 // *****************************************************************************
@@ -156,6 +157,7 @@ static void lCAN_READ_TASK_Tasks(  void *pvParameters  )
 */
 void SYS_Tasks ( void )
 {
+    
     /* Maintain system services */
     
 

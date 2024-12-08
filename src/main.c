@@ -29,7 +29,7 @@
 #include <stdio.h>
 //#include <FreeRTOS.h>
 //#include "../../u8g2-master/csrc/u8g2.h"
-
+#include "../SCE_VCU_FreeRTOS.X/queue_manager.h"
 
 
 // *****************************************************************************
@@ -49,6 +49,7 @@ int main(void) {
     
     
     while (true) {
+        Inverter_control_Queue = xQueueCreate(10, sizeof ( long));
         SYS_Tasks();
     }
 
