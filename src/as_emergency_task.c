@@ -5,7 +5,7 @@
     Microchip Technology Inc.
 
   File Name:
-    inverter_task.c
+    as_emergency_task.c
 
   Summary:
     This file contains the source code for the MPLAB Harmony application.
@@ -27,17 +27,7 @@
 // *****************************************************************************
 // *****************************************************************************
 
-#include "inverter_task.h"
-#include <stdio.h>
-#include "apps_task.h"
-#ifndef FREERTOS_H
-#include"FreeRTOS.h"
-#endif
-#include "semphr.h"
-#include "definitions.h"
-#include "../Can-Header-Map/CAN_pwtdb.h"
-#include "queue.h"
-#include "../SCE_VCU_FreeRTOS.X/queue_manager.h"
+#include "as_emergency_task.h"
 
 // *****************************************************************************
 // *****************************************************************************
@@ -55,22 +45,13 @@
     This structure holds the application's data.
 
   Remarks:
-    This structure should be initialized by the INVERTER_TASK_Initialize function.
+    This structure should be initialized by the AS_EMERGENCY_TASK_Initialize function.
 
     Application strings and buffers are be defined outside this structure.
- */
+*/
 
-INVERTER_TASK_DATA inverter_taskData;
+AS_EMERGENCY_TASK_DATA as_emergency_taskData;
 
-
-
-
-// Define a structure to hold the ADC values
-
-typedef struct {
-    uint16_t adc0value;
-    uint16_t adc3value;
-} ADCValues_t;
 // *****************************************************************************
 // *****************************************************************************
 // Section: Application Callback Functions
@@ -78,7 +59,7 @@ typedef struct {
 // *****************************************************************************
 
 /* TODO:  Add any necessary callback functions.
- */
+*/
 
 // *****************************************************************************
 // *****************************************************************************
@@ -88,7 +69,7 @@ typedef struct {
 
 
 /* TODO:  Add any necessary local functions.
- */
+*/
 
 
 // *****************************************************************************
@@ -99,90 +80,63 @@ typedef struct {
 
 /*******************************************************************************
   Function:
-    void INVERTER_TASK_Initialize ( void )
+    void AS_EMERGENCY_TASK_Initialize ( void )
 
   Remarks:
-    See prototype in inverter_task.h.
+    See prototype in as_emergency_task.h.
  */
 
-void INVERTER_TASK_Initialize(void) {
+void AS_EMERGENCY_TASK_Initialize ( void )
+{
     /* Place the App state machine in its initial state. */
-    inverter_taskData.state = INVERTER_TASK_STATE_INIT;
+    as_emergency_taskData.state = AS_EMERGENCY_TASK_STATE_INIT;
 
 
 
     /* TODO: Initialize your application's state machine and other
      * parameters.
      */
-    CAN1_Initialize();
-           
-    /*        if (Inverter_control_Queue == NULL) {
-                // Handle queue creation failure
-                while (1);
-            }*/
 }
+
 
 /******************************************************************************
   Function:
-    void INVERTER_TASK_Tasks ( void )
+    void AS_EMERGENCY_TASK_Tasks ( void )
 
   Remarks:
-    See prototype in inverter_task.h.
+    See prototype in as_emergency_task.h.
  */
 
-void INVERTER_TASK_Tasks(void) {
+void AS_EMERGENCY_TASK_Tasks ( void )
+{
 
     /* Check the application's current state. */
-    switch (inverter_taskData.state) {
-            /* Application's initial state. */
-        case INVERTER_TASK_STATE_INIT:
+    switch ( as_emergency_taskData.state )
+    {
+        /* Application's initial state. */
+        case AS_EMERGENCY_TASK_STATE_INIT:
         {
             bool appInitialized = true;
 
 
-            if (appInitialized) {
+            if (appInitialized)
+            {
 
-                inverter_taskData.state = INVERTER_TASK_STATE_SERVICE_TASKS;
+                as_emergency_taskData.state = AS_EMERGENCY_TASK_STATE_SERVICE_TASKS;
             }
             break;
         }
 
-        case INVERTER_TASK_STATE_SERVICE_TASKS:
+        case AS_EMERGENCY_TASK_STATE_SERVICE_TASKS:
         {
 
-            static ADCValues_t receivedValues;
-            static BaseType_t xStatus;
-
-            // Wait to receive data from the queue
-            xStatus = xQueueReceive(Inverter_control_Queue, &receivedValues, portMAX_DELAY);
-            if (xStatus == pdPASS) {
-                // Process the received data
-                uint16_t adc0value = receivedValues.adc0value;
-                uint16_t adc3value = receivedValues.adc3value;
-
-                // Example processing: Print the values
-                printf("Received ADC0 Value: %u\n", adc0value);
-                printf("Received ADC3 Value: %u\n", adc3value);
-
-                // Add your processing logic here
-            } 
-            /*for (int count = 8; count >=1; count--){
-                message[count - 1] = count;
-            }
-            if(CAN1_MessageTransmit(0x69, 8, message, 0, CANFD_MODE_NORMAL, CANFD_MSG_TX_DATA_FRAME)){
-
-
-            }*/
-
-
-
             break;
         }
 
-            /* TODO: implement your application state machine.*/
+        /* TODO: implement your application state machine.*/
 
 
-            /* The default state should never be executed. */
+        /* The default state should never be executed. */
         default:
         {
             /* TODO: Handle error in application's state machine. */

@@ -152,7 +152,7 @@ void APPS_TASK_Initialize(void) {
     vSemaphoreCreateBinary(ADC3_SEMAPHORE);
     xSemaphoreTake(ADC3_SEMAPHORE, portMAX_DELAY);
 
-    Inverter_control_Queue = xQueueCreate(10, sizeof ( long));
+    //Inverter_control_Queue = xQueueCreate(10, sizeof ( long));
 }
 
 /******************************************************************************

@@ -72,6 +72,9 @@ extern TaskHandle_t xINVERTER_TASK_Tasks;
 /* Declaration of  R2D_TASK_Tasks task handle */
 extern TaskHandle_t xR2D_TASK_Tasks;
 
+/* Declaration of  AS_EMERGENCY_TASK_Tasks task handle */
+extern TaskHandle_t xAS_EMERGENCY_TASK_Tasks;
+
 /* Declaration of  MAIN_TASK_Tasks task handle */
 extern TaskHandle_t xMAIN_TASK_Tasks;
 
