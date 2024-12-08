@@ -115,7 +115,7 @@ void INVERTER_TASK_Initialize(void) {
      * parameters.
      */
     CAN1_Initialize();
-    //        Inverter_control_Queue = xQueueCreate(1, sizeof(uint8_t));
+            Inverter_control_Queue = xQueueCreate(1, sizeof(uint8_t));
     /*        if (Inverter_control_Queue == NULL) {
                 // Handle queue creation failure
                 while (1);
