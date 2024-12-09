@@ -47,9 +47,9 @@ int main(void) {
     
 
     
-    
+    Inverter_control_Queue = xQueueCreate(10, sizeof ( long));
     while (true) {
-        Inverter_control_Queue = xQueueCreate(10, sizeof ( long));
+        
         SYS_Tasks();
     }
 
