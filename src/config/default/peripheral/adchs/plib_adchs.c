@@ -97,10 +97,10 @@ void ADCHS_Initialize(void)
 
 
 /* Result interrupt enable */
-ADCGIRQEN1 = 0x109U;
+ADCGIRQEN1 = 0x8109U;
 ADCGIRQEN2 = 0x0U;
 /* Interrupt Enable */
-IEC3SET = 0x42400U;
+IEC3SET = 0x2042400U;
 IEC4SET = 0x0U;    IEC3SET = _IEC3_AD1EOSIE_MASK;
 
 
@@ -311,5 +311,16 @@ void __attribute__((used)) ADC_DATA8_InterruptHandler(void)
 
 
     IFS3CLR = _IFS3_AD1D8IF_MASK;
+}
+void __attribute__((used)) ADC_DATA15_InterruptHandler(void)
+{
+    if (ADCHS_CallbackObj[15].callback_fn != NULL)
+    {
+        uintptr_t context = ADCHS_CallbackObj[15].context;
+        ADCHS_CallbackObj[15].callback_fn(ADCHS_CH15, context);
+    }
+
+
+    IFS3CLR = _IFS3_AD1D15IF_MASK;
 }
 

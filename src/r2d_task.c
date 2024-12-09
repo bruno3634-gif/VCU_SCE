@@ -29,6 +29,7 @@
 
 #include "r2d_task.h"
 #include "definitions.h"
+#include "peripheral/adchs/plib_adchs_common.h"
 // *****************************************************************************
 // *****************************************************************************
 // Section: Global Data Definitions
@@ -75,7 +76,7 @@ volatile int r2d = 0;
 /* TODO:  Add any necessary local functions.
 */
 
-//unsigned int millis1(void);
+xSemaphoreHandle ADC15_BP_SEMAPHORE; 
 
 unsigned int millis1(void){
   return (unsigned int)(CORETIMER_CounterGet() / (CORE_TIMER_FREQUENCY / 1000));
@@ -98,8 +99,37 @@ void SOUND_R2DS(void) {
         Time = millis1();
         buzzer_Clear();
     }
-    LED_F1_Toggle();
+   // LED_F1_Toggle();
 }
+
+/// @brief Measure the brake pressure from an ADC channel
+/// @param bits ADC channel to measure the brake pressure
+/// @return Measured brake pressure
+float MeasureBrakePressure(uint16_t bits) {
+    /*(28.57mV/bar  + 500mv)*/
+    float volts = 0;
+    float pressure = 0;
+    volts = (float)bits * 3.300 / 4095.000;
+    volts = volts / 0.667;  // conversion from 3.3V to 5V
+
+    pressure = (volts - 0.5) / 0.02857;
+
+    return pressure;
+}
+
+void ADCHS_CH15_Callback(ADCHS_CHANNEL_NUM channel, uintptr_t context) { 
+    static BaseType_t xHigherPriorityTaskWoken; 
+    xHigherPriorityTaskWoken = pdFALSE; 
+    
+    ADCHS_ChannelResultGet(ADCHS_CH15); 
+    
+    
+    xSemaphoreGiveFromISR(ADC15_BP_SEMAPHORE, &xHigherPriorityTaskWoken); 
+    
+    if (xHigherPriorityTaskWoken == pdTRUE) { 
+        portYIELD(); 
+    } 
+} 
 
 
 
@@ -122,7 +152,14 @@ void R2D_TASK_Initialize ( void )
     /* Place the App state machine in its initial state. */
     r2d_taskData.state = R2D_TASK_STATE_INIT;
 
-    
+    ADCHS_CallbackRegister(ADCHS_CH15, ADCHS_CH15_Callback, (uintptr_t)NULL);  // Voltage Measurement 
+    ADCHS_ChannelResultInterruptEnable(ADCHS_CH15); 
+    ADCHS_ChannelConversionStart(ADCHS_CH15); 
+ 
+    vSemaphoreCreateBinary(ADC15_BP_SEMAPHORE); 
+    xSemaphoreTake(ADC15_BP_SEMAPHORE, 0); 
+
+ 
 
     /* TODO: Initialize your application's state machine and other
      * parameters.
@@ -160,6 +197,11 @@ void R2D_TASK_Tasks ( void )
 
         case R2D_TASK_STATE_SERVICE_TASKS:
         {
+            ADCHS_ChannelConversionStart(ADCHS_CH15);
+            xSemaphoreTake(ADC15_BP_SEMAPHORE, portMAX_DELAY);
+            printf("\n\n\rbp: %f\n\r", MeasureBrakePressure(ADCHS_ChannelResultGet(ADCHS_CH15)));
+
+            //ADCHS_ChannelConversionStart(ADCHS_CH15);
             SOUND_R2DS();
             break;
         }

@@ -53,9 +53,8 @@
 #include "configuration.h"
 #include "definitions.h"
 #include "sys_tasks.h"
-#include "../SCE_VCU_FreeRTOS.X/queue_manager.h"
 
-//QueueHandle_t Inverter_control_Queue;
+
 // *****************************************************************************
 // *****************************************************************************
 // Section: RTOS "Tasks" Routine
@@ -91,7 +90,7 @@ static void lVOLTAGE_MEASUREMENT_TASK_Tasks(  void *pvParameters  )
     while(true)
     {
         VOLTAGE_MEASUREMENT_TASK_Tasks();
-        vTaskDelay(1000U / portTICK_PERIOD_MS);
+        vTaskDelay(200U / portTICK_PERIOD_MS);
     }
 }
 /* Handle for the INVERTER_TASK_Tasks. */
@@ -114,6 +113,17 @@ static void lR2D_TASK_Tasks(  void *pvParameters  )
     {
         R2D_TASK_Tasks();
         vTaskDelay(500U / portTICK_PERIOD_MS);
+    }
+}
+/* Handle for the AS_EMERGENCY_TASK_Tasks. */
+TaskHandle_t xAS_EMERGENCY_TASK_Tasks;
+
+static void lAS_EMERGENCY_TASK_Tasks(  void *pvParameters  )
+{   
+    while(true)
+    {
+        AS_EMERGENCY_TASK_Tasks();
+        vTaskDelay(50U / portTICK_PERIOD_MS);
     }
 }
 /* Handle for the MAIN_TASK_Tasks. */
@@ -157,7 +167,6 @@ static void lCAN_READ_TASK_Tasks(  void *pvParameters  )
 */
 void SYS_Tasks ( void )
 {
-    
     /* Maintain system services */
     
 
@@ -207,6 +216,14 @@ void SYS_Tasks ( void )
                 NULL,
                 3,
                 &xR2D_TASK_Tasks);
+
+    /* Create OS Thread for AS_EMERGENCY_TASK_Tasks. */
+    (void) xTaskCreate((TaskFunction_t) lAS_EMERGENCY_TASK_Tasks,
+                "AS_EMERGENCY_TASK_Tasks",
+                1024,
+                NULL,
+                1,
+                &xAS_EMERGENCY_TASK_Tasks);
 
     /* Create OS Thread for MAIN_TASK_Tasks. */
     (void) xTaskCreate((TaskFunction_t) lMAIN_TASK_Tasks,

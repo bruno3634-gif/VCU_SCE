@@ -153,6 +153,7 @@ void VOLTAGE_MEASUREMENT_TASK_Tasks ( void )
 
             if (appInitialized)
             {
+                ADCHS_ChannelConversionStart(ADCHS_CH8);
 
                 voltage_measurement_taskData.state = VOLTAGE_MEASUREMENT_TASK_STATE_SERVICE_TASKS;
             }
@@ -163,6 +164,7 @@ void VOLTAGE_MEASUREMENT_TASK_Tasks ( void )
         {
             xSemaphoreTake(voltageMeasurementSemaphore, portMAX_DELAY); 
             voltageMeasurementValue = MeasureVoltage(ADCHS_ChannelResultGet(ADCHS_CH8)); 
+            ADCHS_ChannelConversionStart(ADCHS_CH8);
             break;
         }
 
@@ -199,17 +201,17 @@ float MeasureVoltage(uint16_t bits) {
         interval = currentMillis - previousMillis;
 
         if (PDM_Voltage < 25 && PDM_Voltage >= 24) {
-            if (interval >= 1000) {
-                GPIO_RG9_LV_ON_Toggle();
-                previousMillis = currentMillis;
-            }
-        } else if (PDM_Voltage < 24 && PDM_Voltage >= 23) {
             if (interval >= 500) {
                 GPIO_RG9_LV_ON_Toggle();
                 previousMillis = currentMillis;
             }
+        } else if (PDM_Voltage < 24 && PDM_Voltage >= 23) {
+            if (interval >= 100) {
+                GPIO_RG9_LV_ON_Toggle();
+                previousMillis = currentMillis;
+            }
         } else if (PDM_Voltage < 23) {
-            if (interval >= 150) {
+            if (interval >= 0) {
                 GPIO_RG9_LV_ON_Toggle();
                 previousMillis = currentMillis;
             }
