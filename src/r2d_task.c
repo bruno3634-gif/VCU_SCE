@@ -29,6 +29,7 @@
 
 #include "r2d_task.h"
 #include "definitions.h"
+#include "interrupts.h"
 #include "peripheral/adchs/plib_adchs_common.h"
 
 // *****************************************************************************
@@ -67,11 +68,18 @@ volatile int r2d = 0;
 /* TODO:  Add any necessary callback functions.
 */
 
+void r2d_int(GPIO_PIN pin, uintptr_t context){
+    LED_F1_Toggle();
+}
+
+
+
 // *****************************************************************************
 // *****************************************************************************
 // Section: Application Local Functions
 // *****************************************************************************
-// *****************************************************************************
+// ******************
+
 
 
 /* TODO:  Add any necessary local functions.
@@ -152,13 +160,10 @@ void R2D_TASK_Initialize ( void )
 {
     /* Place the App state machine in its initial state. */
     r2d_taskData.state = R2D_TASK_STATE_INIT;
+    EVIC_ExternalInterruptCallbackRegister(GPIO_PIN_RA8,r2d_int,(uintptr_t)NULL);
+    GPIO_PinInputEnable(GPIO_PIN_RA8);
 
-    ADCHS_CallbackRegister(ADCHS_CH15, ADCHS_CH15_Callback, (uintptr_t)NULL);  // Voltage Measurement 
-    ADCHS_ChannelResultInterruptEnable(ADCHS_CH15); 
-    ADCHS_ChannelConversionStart(ADCHS_CH15); 
- 
-    vSemaphoreCreateBinary(ADC15_BP_SEMAPHORE); 
-    xSemaphoreTake(ADC15_BP_SEMAPHORE, 0); 
+    
 
  
 
