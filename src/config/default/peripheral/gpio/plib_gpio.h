@@ -62,6 +62,15 @@
 // *****************************************************************************
 
 
+/*** Macros for GPIO_RG9_LV_ON pin ***/
+#define GPIO_RG9_LV_ON_Set()               (LATGSET = (1U<<9))
+#define GPIO_RG9_LV_ON_Clear()             (LATGCLR = (1U<<9))
+#define GPIO_RG9_LV_ON_Toggle()            (LATGINV= (1U<<9))
+#define GPIO_RG9_LV_ON_OutputEnable()      (TRISGCLR = (1U<<9))
+#define GPIO_RG9_LV_ON_InputEnable()       (TRISGSET = (1U<<9))
+#define GPIO_RG9_LV_ON_Get()               ((PORTG >> 9) & 0x1U)
+#define GPIO_RG9_LV_ON_PIN                  GPIO_PIN_RG9
+
 /*** Macros for GPIO_RC11 pin ***/
 #define GPIO_RC11_Set()               (LATCSET = (1U<<11))
 #define GPIO_RC11_Clear()             (LATCCLR = (1U<<11))

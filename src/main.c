@@ -27,8 +27,8 @@
 #include <stdlib.h>                     // Defines EXIT_FAILURE
 #include "definitions.h"                // SYS function prototypes
 #include <stdio.h>
-//#include <FreeRTOS.h>
-//#include "../../u8g2-master/csrc/u8g2.h"
+
+
 #include "../SCE_VCU_FreeRTOS.X/queue_manager.h"
 
 
@@ -38,7 +38,11 @@
 // *****************************************************************************
 // *****************************************************************************
 
-//QueueHandle_t Inverter_control_Queue;
+
+
+
+
+
 
 
 int main(void) {

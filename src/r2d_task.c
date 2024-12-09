@@ -75,9 +75,9 @@ volatile int r2d = 0;
 /* TODO:  Add any necessary local functions.
 */
 
-unsigned int millis(void);
+//unsigned int millis1(void);
 
-unsigned int millis(void){
+unsigned int millis1(void){
   return (unsigned int)(CORETIMER_CounterGet() / (CORE_TIMER_FREQUENCY / 1000));
 }
 
@@ -90,12 +90,12 @@ void SOUND_R2DS(void) {
             buzzer_Set();
         }
         else{
-            if(Time + 1000 < millis()){
+            if(Time + 1000 < millis1()){
                 buzzer_Clear();
             }
         }
     }else{
-        Time = millis();
+        Time = millis1();
         buzzer_Clear();
     }
     LED_F1_Toggle();

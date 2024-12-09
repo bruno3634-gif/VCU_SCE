@@ -66,6 +66,7 @@ void ADCHS_Initialize(void)
     ADC3CFG = DEVADC3;
     ADC3TIME = 0x3010001U;
 
+    ADC7CFG = DEVADC7;
 
     ADCCON1 = 0x600000U;
     ADCCON2 = 0x22001U;
@@ -96,10 +97,10 @@ void ADCHS_Initialize(void)
 
 
 /* Result interrupt enable */
-ADCGIRQEN1 = 0x9U;
+ADCGIRQEN1 = 0x109U;
 ADCGIRQEN2 = 0x0U;
 /* Interrupt Enable */
-IEC3SET = 0x2400U;
+IEC3SET = 0x42400U;
 IEC4SET = 0x0U;    IEC3SET = _IEC3_AD1EOSIE_MASK;
 
 
@@ -132,6 +133,13 @@ IEC4SET = 0x0U;    IEC3SET = _IEC3_AD1EOSIE_MASK;
     }
     ADCCON3bits.DIGEN3 = 1;      // Enable ADC
 
+    /* ADC 7 */
+    ADCANCONbits.ANEN7 = 1;      // Enable the clock to analog bias
+    while(ADCANCONbits.WKRDY7 == 0U) // Wait until ADC is ready
+    {
+        /* Nothing to do */
+    }
+    ADCCON3bits.DIGEN7 = 1;      // Enable ADC
 
 
 }
@@ -292,5 +300,16 @@ void __attribute__((used)) ADC_DATA3_InterruptHandler(void)
 
 
     IFS3CLR = _IFS3_AD1D3IF_MASK;
+}
+void __attribute__((used)) ADC_DATA8_InterruptHandler(void)
+{
+    if (ADCHS_CallbackObj[8].callback_fn != NULL)
+    {
+        uintptr_t context = ADCHS_CallbackObj[8].context;
+        ADCHS_CallbackObj[8].callback_fn(ADCHS_CH8, context);
+    }
+
+
+    IFS3CLR = _IFS3_AD1D8IF_MASK;
 }
 

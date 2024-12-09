@@ -76,6 +76,8 @@ void GPIO_Initialize ( void )
     LATF = 0x0U; /* Initial Latch Value */
     TRISFCLR = 0x3U; /* Direction Control */
     /* PORTG Initialization */
+    LATG = 0x0U; /* Initial Latch Value */
+    TRISGCLR = 0x200U; /* Direction Control */
     ANSELGCLR = 0x280U; /* Digital Mode Enable */
 
     /* Unlock system for PPS configuration */
@@ -87,7 +89,6 @@ void GPIO_Initialize ( void )
 
     /* PPS Input Remapping */
     U1RXR = 6;
-    INT1R = 10;
     INT3R = 4;
     C2RXR = 10;
     C1RXR = 7;

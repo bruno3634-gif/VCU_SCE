@@ -76,7 +76,7 @@ void ADCHS_CH8_Callback(ADCHS_CHANNEL_NUM channel, uintptr_t context) {
     static BaseType_t xHigherPriorityTaskWoken; 
  
     xHigherPriorityTaskWoken = pdFALSE; 
-     
+    ADCHS_ChannelResultGet(ADCHS_CH8); 
     xSemaphoreGiveFromISR(voltageMeasurementSemaphore, &xHigherPriorityTaskWoken); 
     if (xHigherPriorityTaskWoken == pdTRUE) { 
         portYIELD(); 
@@ -90,9 +90,12 @@ void ADCHS_CH8_Callback(ADCHS_CHANNEL_NUM channel, uintptr_t context) {
 // *****************************************************************************
 
 
-/* TODO:  Add any necessary local functions.
-*/
+// TODO:  Add any necessary local functions.
+unsigned int millis(void);
 
+unsigned int millis(void){
+  return (unsigned int)(CORETIMER_CounterGet() / (CORE_TIMER_FREQUENCY / 1000));
+}
 
 // *****************************************************************************
 // *****************************************************************************
@@ -183,31 +186,31 @@ float MeasureVoltage(uint16_t bits) {
     PDM_Voltage = ((float)bits * 3.30 / 4095.000) / 0.1155;
     //24.0 = 0% and 28.0 = 100%
     //LV_SOC = (uint16_t)((PDM_Voltage - 24.0) * 1000 / 4.0);
-
+    printf("\n\rPDM VALUE = %f",PDM_Voltage);
     if (PDM_Voltage >= 25) {
         // set pin
-        //GPIO_RG9_LV_ON_Set();
+        GPIO_RG9_LV_ON_Set();
     } else if (PDM_Voltage < 25) {
         static uint16_t previousMillis = 0;
         uint16_t currentMillis = 0;
         uint16_t interval = 0;
 
-        //currentMillis = millis();
+        currentMillis = millis();
         interval = currentMillis - previousMillis;
 
         if (PDM_Voltage < 25 && PDM_Voltage >= 24) {
             if (interval >= 1000) {
-                //GPIO_RG9_LV_ON_Toggle();
+                GPIO_RG9_LV_ON_Toggle();
                 previousMillis = currentMillis;
             }
         } else if (PDM_Voltage < 24 && PDM_Voltage >= 23) {
             if (interval >= 500) {
-                //GPIO_RG9_LV_ON_Toggle();
+                GPIO_RG9_LV_ON_Toggle();
                 previousMillis = currentMillis;
             }
         } else if (PDM_Voltage < 23) {
             if (interval >= 150) {
-                //GPIO_RG9_LV_ON_Toggle();
+                GPIO_RG9_LV_ON_Toggle();
                 previousMillis = currentMillis;
             }
         }

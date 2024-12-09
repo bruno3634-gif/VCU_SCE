@@ -59,6 +59,7 @@ void EVIC_Initialize( void )
     IPC25SET = 0x400U | 0x0U;  /* ADC_EOS:  Priority 1 / Subpriority 0 */
     IPC26SET = 0x40000U | 0x0U;  /* ADC_DATA0:  Priority 1 / Subpriority 0 */
     IPC27SET = 0x400U | 0x0U;  /* ADC_DATA3:  Priority 1 / Subpriority 0 */
+    IPC28SET = 0x40000U | 0x0U;  /* ADC_DATA8:  Priority 1 / Subpriority 0 */
 
 
 }
