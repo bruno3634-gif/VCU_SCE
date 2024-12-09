@@ -30,6 +30,7 @@
 #include "r2d_task.h"
 #include "definitions.h"
 #include "peripheral/adchs/plib_adchs_common.h"
+
 // *****************************************************************************
 // *****************************************************************************
 // Section: Global Data Definitions
@@ -199,7 +200,7 @@ void R2D_TASK_Tasks ( void )
         {
             ADCHS_ChannelConversionStart(ADCHS_CH15);
             xSemaphoreTake(ADC15_BP_SEMAPHORE, portMAX_DELAY);
-            printf("\n\n\rbp: %f\n\r", MeasureBrakePressure(ADCHS_ChannelResultGet(ADCHS_CH15)));
+            printf("\n\n\rBrakePressure: %f\n\r", MeasureBrakePressure(ADCHS_ChannelResultGet(ADCHS_CH15)));
 
             //ADCHS_ChannelConversionStart(ADCHS_CH15);
             SOUND_R2DS();
@@ -217,8 +218,6 @@ void R2D_TASK_Tasks ( void )
         }
     }
 }
-
-
 /*******************************************************************************
  End of File
  */

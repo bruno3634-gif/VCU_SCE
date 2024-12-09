@@ -38,6 +38,7 @@
 #include "../Can-Header-Map/CAN_pwtdb.h"
 #include "queue.h"
 #include "../SCE_VCU_FreeRTOS.X/queue_manager.h"
+#include "../../APPS.h"
 
 // *****************************************************************************
 // *****************************************************************************
@@ -89,6 +90,9 @@ typedef struct {
 
 /* TODO:  Add any necessary local functions.
  */
+bool CanSend(uint32_t id, uint8_t length, uint8_t *buffer) {
+    return CAN1_MessageTransmit(id, length, buffer, 0, CANFD_MODE_NORMAL, CANFD_MSG_TX_DATA_FRAME);
+}
 
 
 // *****************************************************************************
@@ -109,17 +113,8 @@ void INVERTER_TASK_Initialize(void) {
     /* Place the App state machine in its initial state. */
     inverter_taskData.state = INVERTER_TASK_STATE_INIT;
 
-
-
-    /* TODO: Initialize your application's state machine and other
-     * parameters.
-     */
     CAN1_Initialize();
-           
-    /*        if (Inverter_control_Queue == NULL) {
-                // Handle queue creation failure
-                while (1);
-            }*/
+    APPS_Init(0.5, 4.5, 0.1, 0);
 }
 
 /******************************************************************************
@@ -149,22 +144,43 @@ void INVERTER_TASK_Tasks(void) {
 
         case INVERTER_TASK_STATE_SERVICE_TASKS:
         {
-
             static ADCValues_t receivedValues;
             static BaseType_t xStatus;
 
             // Wait to receive data from the queue
             xStatus = xQueueReceive(Inverter_control_Queue, &receivedValues, portMAX_DELAY);
             if (xStatus == pdPASS) {
+                static uint16_t power = 0;
+
                 // Process the received data
                 uint16_t adc0value = receivedValues.adc0value;
                 uint16_t adc3value = receivedValues.adc3value;
+                //printf("Received ADC0 Value: %u\n", adc0value); 
+                //printf("Received ADC3 Value: %u\n", adc3value);
 
-                // Example processing: Print the values
-                printf("Received ADC0 Value: %u\n", adc0value);
-                printf("Received ADC3 Value: %u\n", adc3value);
+              
 
-                // Add your processing logic here
+                power = APPS_Function(adc0value, adc3value);
+                printf("\n\rPower: %u\n", power);
+                
+                // Send the data over CAN
+                uint32_t id = 0x14;
+                uint8_t length = 1;
+                uint8_t message[8];
+                message[0] = 0x01; //send drive enable signal
+                //send drive enable signal
+                CanSend( id,  length,  message);
+
+                //send the data to the inverter control
+                id = 0x24;
+                length = 6;
+                message[0] = adc0value & 0xFF;
+                message[1] = (adc0value >> 8) & 0xFF;
+                message[2] = adc3value & 0xFF;
+                message[3] = (adc3value >> 8) & 0xFF;
+                message[4] = power & 0xFF;
+                message[5] = (power >> 8) & 0xFF;
+                CanSend( id,  length,  message);
             } 
             /*for (int count = 8; count >=1; count--){
                 message[count - 1] = count;
@@ -173,9 +189,6 @@ void INVERTER_TASK_Tasks(void) {
 
 
             }*/
-
-
-
             break;
         }
 
