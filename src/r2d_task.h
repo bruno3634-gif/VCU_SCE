@@ -63,6 +63,8 @@ typedef enum
     /* Application's state machine's initial state. */
     R2D_TASK_STATE_INIT=0,
     R2D_TASK_STATE_SERVICE_TASKS,
+    R2D_TASK_BUZZING,
+    R2D_TASK_R2D_STATE,
     /* TODO: Define states used by the application state machine. */
 
 } R2D_TASK_STATES;

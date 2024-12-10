@@ -30,6 +30,7 @@
 #include "r2d_task.h"
 #include "definitions.h"
 #include "peripheral/adchs/plib_adchs_common.h"
+#include "semphr.h"
 // *****************************************************************************
 // *****************************************************************************
 // Section: Global Data Definitions
@@ -77,6 +78,7 @@ volatile int r2d = 0;
 */
 
 xSemaphoreHandle ADC15_BP_SEMAPHORE; 
+xSemaphoreHandle R2D_BTN_SEMAPHORE; 
 
 unsigned int millis1(void){
   return (unsigned int)(CORETIMER_CounterGet() / (CORE_TIMER_FREQUENCY / 1000));
@@ -93,6 +95,7 @@ void SOUND_R2DS(void) {
         else{
             if(Time + 1000 < millis1()){
                 buzzer_Clear();
+                r2d_taskData.state = R2D_TASK_R2D_STATE;
             }
         }
     }else{
@@ -133,6 +136,19 @@ void ADCHS_CH15_Callback(ADCHS_CHANNEL_NUM channel, uintptr_t context) {
 
 
 
+void r2d_int(GPIO_PIN pin, uintptr_t context){
+    static BaseType_t xHigherPriorityTaskWoken; 
+    xHigherPriorityTaskWoken = pdFALSE; 
+    
+    LED_F1_Toggle(); 
+    xSemaphoreGiveFromISR(R2D_BTN_SEMAPHORE, &xHigherPriorityTaskWoken); 
+    
+    if (xHigherPriorityTaskWoken == pdTRUE) { 
+        portYIELD(); 
+    } 
+}
+
+
 // *****************************************************************************
 // *****************************************************************************
 // Section: Application Initialization and State Machine Functions
@@ -152,13 +168,17 @@ void R2D_TASK_Initialize ( void )
     /* Place the App state machine in its initial state. */
     r2d_taskData.state = R2D_TASK_STATE_INIT;
 
+    GPIO_PinInterruptCallbackRegister(IGNITION_PIN,r2d_int,0);
+    GPIO_PinIntDisable(IGNITION_PIN);
+    LED_F1_Set();
+    
     ADCHS_CallbackRegister(ADCHS_CH15, ADCHS_CH15_Callback, (uintptr_t)NULL);  // Voltage Measurement 
     ADCHS_ChannelResultInterruptEnable(ADCHS_CH15); 
-    ADCHS_ChannelConversionStart(ADCHS_CH15); 
- 
+    ADCHS_ChannelConversionStart(ADCHS_CH15);   
     vSemaphoreCreateBinary(ADC15_BP_SEMAPHORE); 
     xSemaphoreTake(ADC15_BP_SEMAPHORE, 0); 
-
+    vSemaphoreCreateBinary(R2D_BTN_SEMAPHORE);
+    xSemaphoreTake(R2D_BTN_SEMAPHORE,0);
  
 
     /* TODO: Initialize your application's state machine and other
@@ -197,19 +217,42 @@ void R2D_TASK_Tasks ( void )
 
         case R2D_TASK_STATE_SERVICE_TASKS:
         {
-            ADCHS_ChannelConversionStart(ADCHS_CH15);
-            xSemaphoreTake(ADC15_BP_SEMAPHORE, portMAX_DELAY);
-            printf("\n\n\rbp: %f\n\r", MeasureBrakePressure(ADCHS_ChannelResultGet(ADCHS_CH15)));
+            if(R2D_S_Get()==1){
+                GPIO_PinIntEnable(IGNITION_PIN, GPIO_INTERRUPT_ON_RISING_EDGE);
+                ADCHS_ChannelConversionStart(ADCHS_CH15);
+            
+                xSemaphoreTake(R2D_BTN_SEMAPHORE,portMAX_DELAY);
+                ADCHS_ChannelConversionStart(ADCHS_CH15);
+                xSemaphoreTake(ADC15_BP_SEMAPHORE, portMAX_DELAY);
+                if(MeasureBrakePressure(ADCHS_ChannelResultGet(ADCHS_CH15)) >= -1){
+                    r2d_taskData.state = R2D_TASK_BUZZING;
+                }
 
-            //ADCHS_ChannelConversionStart(ADCHS_CH15);
-            SOUND_R2DS();
+                printf("\n\n\rbp: %f\n\r", MeasureBrakePressure(ADCHS_ChannelResultGet(ADCHS_CH15)));
+                GPIO_PinIntDisable(IGNITION_PIN);
+                }
+            else{
+                GPIO_PinIntDisable(IGNITION_PIN);
+                r2d_taskData.state = R2D_TASK_STATE_SERVICE_TASKS;
+                //change states
+            }
             break;
         }
-
-        /* TODO: implement your application state machine.*/
-
-
-        /* The default state should never be executed. */
+        case R2D_TASK_BUZZING:
+            GPIO_PinIntDisable(IGNITION_PIN);
+            SOUND_R2DS();
+            r2d_taskData.state = R2D_TASK_R2D_STATE;
+            break;
+        case R2D_TASK_R2D_STATE:
+            GPIO_PinIntDisable(IGNITION_PIN);
+            if(R2D_S_Get() == 1){
+                
+            }
+            else
+            {
+                r2d_taskData.state = R2D_TASK_STATE_SERVICE_TASKS;
+            }
+            break;
         default:
         {
             /* TODO: Handle error in application's state machine. */
