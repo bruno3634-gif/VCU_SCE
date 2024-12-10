@@ -221,16 +221,18 @@ void R2D_TASK_Tasks ( void )
                 GPIO_PinIntEnable(IGNITION_PIN, GPIO_INTERRUPT_ON_RISING_EDGE);
                 ADCHS_ChannelConversionStart(ADCHS_CH15);
             
-                xSemaphoreTake(R2D_BTN_SEMAPHORE,portMAX_DELAY);
-                ADCHS_ChannelConversionStart(ADCHS_CH15);
-                xSemaphoreTake(ADC15_BP_SEMAPHORE, portMAX_DELAY);
-                if(MeasureBrakePressure(ADCHS_ChannelResultGet(ADCHS_CH15)) >= -1){
-                    r2d_taskData.state = R2D_TASK_BUZZING;
+                if(xSemaphoreTake(R2D_BTN_SEMAPHORE,pdMS_TO_TICKS(200)) == pdTRUE){
+                                    ADCHS_ChannelConversionStart(ADCHS_CH15);
+                    xSemaphoreTake(ADC15_BP_SEMAPHORE, portMAX_DELAY);
+                    if(MeasureBrakePressure(ADCHS_ChannelResultGet(ADCHS_CH15)) >= -1){
+                        r2d_taskData.state = R2D_TASK_BUZZING;
+                    }
+
+                    printf("\n\n\rbp: %f\n\r", MeasureBrakePressure(ADCHS_ChannelResultGet(ADCHS_CH15)));
+                    GPIO_PinIntDisable(IGNITION_PIN);
+                    }
                 }
 
-                printf("\n\n\rbp: %f\n\r", MeasureBrakePressure(ADCHS_ChannelResultGet(ADCHS_CH15)));
-                GPIO_PinIntDisable(IGNITION_PIN);
-                }
             else{
                 GPIO_PinIntDisable(IGNITION_PIN);
                 r2d_taskData.state = R2D_TASK_STATE_SERVICE_TASKS;
