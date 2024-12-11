@@ -31,6 +31,7 @@
 #include "definitions.h"
 #include "peripheral/adchs/plib_adchs_common.h"
 #include "semphr.h"
+#include "../SCE_VCU_FreeRTOS.X/queue_manager.h"
 // *****************************************************************************
 // *****************************************************************************
 // Section: Global Data Definitions
@@ -229,7 +230,6 @@ void R2D_TASK_Tasks ( void )
                     if(MeasureBrakePressure(ADCHS_ChannelResultGet(ADCHS_CH15)) >= -1){
                         r2d_taskData.state = R2D_TASK_BUZZING;
                     }
-
                     printf("\n\n\rbp: %f\n\r", MeasureBrakePressure(ADCHS_ChannelResultGet(ADCHS_CH15)));
                     GPIO_PinIntDisable(IGNITION_PIN);
                     }
@@ -252,6 +252,8 @@ void R2D_TASK_Tasks ( void )
             if(R2D_S_Get() == 1){
                 LED_F1_Set();
                 buzzer_Set();
+                xSemaphoreGive(R2D_semaphore);
+                
             }
             else
             {

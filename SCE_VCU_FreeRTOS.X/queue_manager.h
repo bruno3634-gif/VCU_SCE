@@ -10,9 +10,16 @@
 
 #include "FreeRTOS.h"
 #include "queue.h"
+#include "semphr.h"
 
 // Declare the queue handle as extern
 extern QueueHandle_t Inverter_control_Queue;
 extern QueueHandle_t AS_Emergency_Queue;
+
+
+
+//Declare semaphores
+
+extern xSemaphoreHandle R2D_semaphore;
 
 #endif // QUEUE_MANAGER_H

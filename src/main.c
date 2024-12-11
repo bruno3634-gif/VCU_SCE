@@ -27,7 +27,7 @@
 #include <stdlib.h>                     // Defines EXIT_FAILURE
 #include "definitions.h"                // SYS function prototypes
 #include <stdio.h>
-
+#include "semphr.h"
 
 #include "../SCE_VCU_FreeRTOS.X/queue_manager.h"
 
@@ -48,6 +48,8 @@ int main(void) {
     Inverter_control_Queue = xQueueCreate(10, sizeof ( long));
     AS_Emergency_Queue = xQueueCreate(1,sizeof(uint8_t));
     
+    
+    vSemaphoreCreateBinary(R2D_semaphore);
     while (true) {
         
         SYS_Tasks();

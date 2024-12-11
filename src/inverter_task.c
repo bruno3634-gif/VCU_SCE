@@ -146,7 +146,7 @@ void INVERTER_TASK_Tasks(void) {
         {
             static ADCValues_t receivedValues;
             static BaseType_t xStatus;
-
+            xSemaphoreTake(R2D_semaphore,portMAX_DELAY);
             // Wait to receive data from the queue
             xStatus = xQueueReceive(Inverter_control_Queue, &receivedValues, portMAX_DELAY);
             if (xStatus == pdPASS) {
