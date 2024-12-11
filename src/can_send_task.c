@@ -149,8 +149,7 @@ void CAN_SEND_TASK_Tasks ( void )
             //    printf("Failed to transmit message");
             }
             LED_RB13_Toggle();
-            
-            
+             
             //*** Data to send to can ***//
             //Low Voltage battery
             //Ignition

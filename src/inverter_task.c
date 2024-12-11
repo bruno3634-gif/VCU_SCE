@@ -34,8 +34,7 @@
 #include"FreeRTOS.h"
 #endif
 #include "semphr.h"
-#include "definitions.h"
-#include "../CAN_HEADER_MAP/CAN_pwtdb.h"    
+#include "definitions.h"  
 #include "queue.h"
 #include "../SCE_VCU_FreeRTOS.X/queue_manager.h"
 #include "../../APPS.h"
