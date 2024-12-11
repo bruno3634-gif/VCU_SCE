@@ -2995,7 +2995,7 @@
       &lt;/Boolean&gt;
     &lt;/Attributes&gt;
     &lt;Values dnOrder=&quot;1&quot;&gt;
-      &lt;User dnOrder=&quot;0&quot; value=&quot;500&quot;/&gt;
+      &lt;User dnOrder=&quot;0&quot; value=&quot;200&quot;/&gt;
     &lt;/Values&gt;
   &lt;/HarmonyCore&gt;
 &lt;/HarmonyCore&gt;
@@ -12920,6 +12920,17 @@
 </value>
       </entry>
       <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="core" name="BSP_PIN_58_LAT"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;core&gt;
+  &lt;core dnOrder=&quot;0&quot; id=&quot;BSP_PIN_58_LAT&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;&gt;
+      &lt;User dnOrder=&quot;0&quot; value=&quot;High&quot;/&gt;
+    &lt;/Values&gt;
+  &lt;/core&gt;
+&lt;/core&gt;
+</value>
+      </entry>
+      <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="core" name="BSP_PIN_58_MODE"/>
          <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;core&gt;
   &lt;core dnOrder=&quot;0&quot; id=&quot;BSP_PIN_58_MODE&quot;&gt;
@@ -15624,6 +15635,17 @@
 </value>
       </entry>
       <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="core" name="SYS_PORT_F_LAT"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;core&gt;
+  &lt;core dnOrder=&quot;0&quot; id=&quot;SYS_PORT_F_LAT&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;&gt;
+      &lt;Dynamic dnOrder=&quot;0&quot; id=&quot;core&quot; value=&quot;1&quot;/&gt;
+    &lt;/Values&gt;
+  &lt;/core&gt;
+&lt;/core&gt;
+</value>
+      </entry>
+      <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="core" name="SYS_PORT_F_TRIS"/>
          <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;core&gt;
   &lt;core dnOrder=&quot;0&quot; id=&quot;SYS_PORT_F_TRIS&quot;&gt;
@@ -17579,7 +17601,7 @@
       </entry>
       <entry>
          <file>../src/config/default/peripheral/gpio/plib_gpio.c</file>
-         <hash>cb01efd4d0c2a7314b8849795fa73be3a864407ba9bc7d50899fa9e01f2887d1</hash>
+         <hash>724575e8060a53fce63f75a4ed913ee6ffad983f049c30b1bd8a8b1cea5aba00</hash>
       </entry>
       <entry>
          <file>../src/config/default/peripheral/gpio/plib_gpio.h</file>
@@ -17607,7 +17629,7 @@
       </entry>
       <entry>
          <file>../src/config/default/tasks.c</file>
-         <hash>51413e5f9b055a87be11d364e372c3393fab6ea3761079ba272e26dbc3fe1f84</hash>
+         <hash>0988eceac87391c96551c9126f50b7072c8ad4d49f8e9179a64263007d626c01</hash>
       </entry>
       <entry>
          <file>../src/config/default/toolchain_specifics.h</file>

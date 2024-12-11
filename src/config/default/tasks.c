@@ -112,7 +112,7 @@ static void lR2D_TASK_Tasks(  void *pvParameters  )
     while(true)
     {
         R2D_TASK_Tasks();
-        vTaskDelay(500U / portTICK_PERIOD_MS);
+        vTaskDelay(200U / portTICK_PERIOD_MS);
     }
 }
 /* Handle for the AS_EMERGENCY_TASK_Tasks. */

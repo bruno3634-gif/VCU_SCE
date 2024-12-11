@@ -88,7 +88,7 @@ unsigned int millis1(void){
 void SOUND_R2DS(void);
 
 void SOUND_R2DS(void) {
-    if(r2d == 1){
+    /*if(r2d == 1){
         if(buzzer_Get() == 0){
             buzzer_Set();
         }
@@ -101,7 +101,8 @@ void SOUND_R2DS(void) {
     }else{
         Time = millis1();
         buzzer_Clear();
-    }
+    }*/buzzer_Clear();
+    
    // LED_F1_Toggle();
 }
 
@@ -140,7 +141,7 @@ void r2d_int(GPIO_PIN pin, uintptr_t context){
     static BaseType_t xHigherPriorityTaskWoken; 
     xHigherPriorityTaskWoken = pdFALSE; 
     
-    LED_F1_Toggle(); 
+    //LED_F1_Toggle(); 
     xSemaphoreGiveFromISR(R2D_BTN_SEMAPHORE, &xHigherPriorityTaskWoken); 
     
     if (xHigherPriorityTaskWoken == pdTRUE) { 
@@ -217,12 +218,13 @@ void R2D_TASK_Tasks ( void )
 
         case R2D_TASK_STATE_SERVICE_TASKS:
         {
+            LED_F1_Clear();
             if(R2D_S_Get()==1){
                 GPIO_PinIntEnable(IGNITION_PIN, GPIO_INTERRUPT_ON_RISING_EDGE);
                 ADCHS_ChannelConversionStart(ADCHS_CH15);
             
-                if(xSemaphoreTake(R2D_BTN_SEMAPHORE,pdMS_TO_TICKS(200)) == pdTRUE){
-                                    ADCHS_ChannelConversionStart(ADCHS_CH15);
+                if(xSemaphoreTake(R2D_BTN_SEMAPHORE,pdMS_TO_TICKS(50)) == pdTRUE){
+                    ADCHS_ChannelConversionStart(ADCHS_CH15);
                     xSemaphoreTake(ADC15_BP_SEMAPHORE, portMAX_DELAY);
                     if(MeasureBrakePressure(ADCHS_ChannelResultGet(ADCHS_CH15)) >= -1){
                         r2d_taskData.state = R2D_TASK_BUZZING;
@@ -248,10 +250,12 @@ void R2D_TASK_Tasks ( void )
         case R2D_TASK_R2D_STATE:
             GPIO_PinIntDisable(IGNITION_PIN);
             if(R2D_S_Get() == 1){
-                
+                LED_F1_Set();
+                buzzer_Set();
             }
             else
             {
+                buzzer_Set();
                 r2d_taskData.state = R2D_TASK_STATE_SERVICE_TASKS;
             }
             break;
