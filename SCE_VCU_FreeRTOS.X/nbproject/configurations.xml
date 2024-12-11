@@ -168,12 +168,13 @@
       <itemPath>../src/inverter_task.c</itemPath>
       <itemPath>queue_manager.c</itemPath>
       <itemPath>../src/as_emergency_task.c</itemPath>
-      <itemPath>/home/pedroferreira/DEV/VCU_SCE/src/APPS.c</itemPath>
-      <itemPath>/home/pedroferreira/DEV/VCU_SCE/src/APPS.h</itemPath>
+      <itemPath>../src/APPS.c</itemPath>
+      <itemPath>../src/APPS.h</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
     <Elem>/home/pedroferreira/DEV/VCU_SCE/src</Elem>
+    <Elem>../src</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
