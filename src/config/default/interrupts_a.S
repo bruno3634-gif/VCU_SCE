@@ -70,6 +70,24 @@ IntVectorEXTERNAL_3_Handler:
     nop
     portRESTORE_CONTEXT
     .end   IntVectorEXTERNAL_3_Handler
+    .extern  CHANGE_NOTICE_A_Handler
+
+    .section   .vector_44,code, keep
+    .equ     __vector_dispatch_44, IntVectorCHANGE_NOTICE_A_Handler
+    .global  __vector_dispatch_44
+    .set     nomicromips
+    .set     noreorder
+    .set     nomips16
+    .set     noat
+    .ent  IntVectorCHANGE_NOTICE_A_Handler
+
+IntVectorCHANGE_NOTICE_A_Handler:
+    portSAVE_CONTEXT
+    la    s6,  CHANGE_NOTICE_A_Handler
+    jalr  s6
+    nop
+    portRESTORE_CONTEXT
+    .end   IntVectorCHANGE_NOTICE_A_Handler
     .extern  ADC_EOS_Handler
 
     .section   .vector_101,code, keep

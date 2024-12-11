@@ -46,6 +46,8 @@ int main(void) {
 
     
     Inverter_control_Queue = xQueueCreate(10, sizeof ( long));
+    AS_Emergency_Queue = xQueueCreate(1,sizeof(uint8_t));
+    
     while (true) {
         
         SYS_Tasks();

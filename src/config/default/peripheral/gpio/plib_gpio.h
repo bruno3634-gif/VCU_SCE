@@ -80,6 +80,26 @@
 #define GPIO_RC11_Get()               ((PORTC >> 11) & 0x1U)
 #define GPIO_RC11_PIN                  GPIO_PIN_RC11
 
+/*** Macros for R2D_S pin ***/
+#define R2D_S_Set()               (LATESET = (1U<<14))
+#define R2D_S_Clear()             (LATECLR = (1U<<14))
+#define R2D_S_Toggle()            (LATEINV= (1U<<14))
+#define R2D_S_OutputEnable()      (TRISECLR = (1U<<14))
+#define R2D_S_InputEnable()       (TRISESET = (1U<<14))
+#define R2D_S_Get()               ((PORTE >> 14) & 0x1U)
+#define R2D_S_PIN                  GPIO_PIN_RE14
+
+/*** Macros for IGNITION pin ***/
+#define IGNITION_Set()               (LATASET = (1U<<8))
+#define IGNITION_Clear()             (LATACLR = (1U<<8))
+#define IGNITION_Toggle()            (LATAINV= (1U<<8))
+#define IGNITION_OutputEnable()      (TRISACLR = (1U<<8))
+#define IGNITION_InputEnable()       (TRISASET = (1U<<8))
+#define IGNITION_Get()               ((PORTA >> 8) & 0x1U)
+#define IGNITION_PIN                  GPIO_PIN_RA8
+#define IGNITION_InterruptEnable()   (CNENASET = (1U<<8))
+#define IGNITION_InterruptDisable()  (CNENACLR = (1U<<8))
+
 /*** Macros for GPIO_RD8 pin ***/
 #define GPIO_RD8_Set()               (LATDSET = (1U<<8))
 #define GPIO_RD8_Clear()             (LATDCLR = (1U<<8))
@@ -244,6 +264,7 @@ typedef enum
 
 typedef uint32_t GPIO_PIN;
 
+typedef  void (*GPIO_PIN_CALLBACK) ( GPIO_PIN pin, uintptr_t context);
 
 void GPIO_Initialize(void);
 
@@ -268,6 +289,29 @@ void GPIO_PortToggle(GPIO_PORT port, uint32_t mask);
 void GPIO_PortInputEnable(GPIO_PORT port, uint32_t mask);
 
 void GPIO_PortOutputEnable(GPIO_PORT port, uint32_t mask);
+
+void GPIO_PortInterruptEnable(GPIO_PORT port, uint32_t mask);
+
+void GPIO_PortInterruptDisable(GPIO_PORT port, uint32_t mask);
+
+// *****************************************************************************
+// *****************************************************************************
+// Section: Local Data types and Prototypes
+// *****************************************************************************
+// *****************************************************************************
+
+typedef struct {
+
+    /* target pin */
+    GPIO_PIN                 pin;
+
+    /* Callback for event on target pin*/
+    GPIO_PIN_CALLBACK        callback;
+
+    /* Callback Context */
+    uintptr_t               context;
+
+} GPIO_PIN_CALLBACK_OBJ;
 
 // *****************************************************************************
 // *****************************************************************************
@@ -316,6 +360,17 @@ static inline void GPIO_PinOutputEnable(GPIO_PIN pin)
     GPIO_PortOutputEnable((pin>>4U), (uint32_t)0x1U << (pin & 0xFU));
 }
 
+#define GPIO_PinInterruptEnable(pin)       GPIO_PinIntEnable(pin, GPIO_INTERRUPT_ON_MISMATCH)
+#define GPIO_PinInterruptDisable(pin)      GPIO_PinIntDisable(pin)
+
+void GPIO_PinIntEnable(GPIO_PIN pin, GPIO_INTERRUPT_STYLE style);
+void GPIO_PinIntDisable(GPIO_PIN pin);
+
+bool GPIO_PinInterruptCallbackRegister(
+    GPIO_PIN pin,
+    const   GPIO_PIN_CALLBACK callback,
+    uintptr_t context
+);
 
 // DOM-IGNORE-BEGIN
 #ifdef __cplusplus  // Provide C++ Compatibility

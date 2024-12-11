@@ -27,16 +27,22 @@
 // *****************************************************************************
 // *****************************************************************************
 
+#include "FreeRTOS.h"
 #include "can_read_task.h"
 #include "peripheral/canfd/plib_canfd1.h"
 #include "peripheral/adchs/plib_adchs_common.h"
 #include "peripheral/gpio/plib_gpio.h"
 #include "definitions.h"
+#include "queue.h"
+#include "../SCE_VCU_FreeRTOS.X/queue_manager.h"
 // *****************************************************************************
 // *****************************************************************************
 // Section: Global Data Definitions
 // *****************************************************************************
 // *****************************************************************************
+uint8_t state;
+#define AS_EMERGENGENCY 0x502
+
 
 // *****************************************************************************
 /* Application Data
@@ -85,7 +91,14 @@ void task_function(){
     uint8_t rx_message[8];
     if(CAN1_MessageReceive(&can_read_taskData.id,&lenght,rx_message, 0, 2,&msgAttr)==true){
         //CAN1_MessageTransmit(0x200,lenght,can_read_taskData.rx_message,0, CANFD_MODE_NORMAL, CANFD_MSG_TX_DATA_FRAME);
-        
+        switch(can_read_taskData.id){
+            case AS_EMERGENGENCY:
+                state = 1;
+                xQueueSend(AS_Emergency_Queue,&state,portMAX_DELAY);
+                break;
+            default:
+                break;
+        }
     }
     else{
         taskYIELD();

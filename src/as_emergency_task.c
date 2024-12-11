@@ -26,9 +26,11 @@
 // Section: Included Files
 // *****************************************************************************
 // *****************************************************************************
-
+#include "FreeRTOS.h"
 #include "as_emergency_task.h"
-
+#include "portmacro.h"
+#include "queue.h"
+#include"../SCE_VCU_FreeRTOS.X/queue_manager.h"
 // *****************************************************************************
 // *****************************************************************************
 // Section: Global Data Definitions
@@ -129,7 +131,16 @@ void AS_EMERGENCY_TASK_Tasks ( void )
 
         case AS_EMERGENCY_TASK_STATE_SERVICE_TASKS:
         {
+            static uint8_t receivedValue;
+            static BaseType_t xStatus;
 
+            // Wait to receive data from the queue
+            xStatus = xQueueReceive(Inverter_control_Queue, &receivedValue, portMAX_DELAY);
+            if(xStatus == pdPASS){
+                if(receivedValue == 1){
+                    //CALL EMERGENCY function
+                }
+            }
             break;
         }
 

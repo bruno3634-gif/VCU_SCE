@@ -13,5 +13,6 @@
 
 // Declare the queue handle as extern
 extern QueueHandle_t Inverter_control_Queue;
+extern QueueHandle_t AS_Emergency_Queue;
 
 #endif // QUEUE_MANAGER_H

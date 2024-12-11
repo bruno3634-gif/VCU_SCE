@@ -58,6 +58,7 @@
 // *****************************************************************************
 
 void EXTERNAL_3_InterruptHandler( void );
+void CHANGE_NOTICE_A_InterruptHandler( void );
 void ADC_EOS_InterruptHandler( void );
 void ADC_DATA0_InterruptHandler( void );
 void ADC_DATA3_InterruptHandler( void );
