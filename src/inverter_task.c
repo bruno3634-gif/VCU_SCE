@@ -28,16 +28,18 @@
 // *****************************************************************************
 
 #include "inverter_task.h"
+
 #include <stdio.h>
+
 #include "apps_task.h"
 #ifndef FREERTOS_H
-#include"FreeRTOS.h"
+#include "FreeRTOS.h"
 #endif
-#include "semphr.h"
-#include "definitions.h"  
-#include "queue.h"
-#include "../SCE_VCU_FreeRTOS.X/queue_manager.h"
 #include "../../APPS.h"
+#include "../SCE_VCU_FreeRTOS.X/queue_manager.h"
+#include "definitions.h"
+#include "queue.h"
+#include "semphr.h"
 
 // *****************************************************************************
 // *****************************************************************************
@@ -62,9 +64,6 @@
 
 INVERTER_TASK_DATA inverter_taskData;
 
-
-
-
 // Define a structure to hold the ADC values
 
 typedef struct {
@@ -86,13 +85,15 @@ typedef struct {
 // *****************************************************************************
 // *****************************************************************************
 
-
 /* TODO:  Add any necessary local functions.
  */
 bool CanSend(uint32_t id, uint8_t length, uint8_t *buffer) {
     return CAN1_MessageTransmit(id, length, buffer, 0, CANFD_MODE_NORMAL, CANFD_MSG_TX_DATA_FRAME);
 }
 
+long map(long x, long in_min, long in_max, long out_min, long out_max) {
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
 
 // *****************************************************************************
 // *****************************************************************************
@@ -125,7 +126,6 @@ void INVERTER_TASK_Initialize(void) {
  */
 
 void INVERTER_TASK_Tasks(void) {
-
     /* Check the application's current state. */
     switch (inverter_taskData.state) {
             /* Application's initial state. */
@@ -133,9 +133,7 @@ void INVERTER_TASK_Tasks(void) {
         {
             bool appInitialized = true;
 
-
             if (appInitialized) {
-
                 inverter_taskData.state = INVERTER_TASK_STATE_SERVICE_TASKS;
             }
             break;
@@ -145,32 +143,41 @@ void INVERTER_TASK_Tasks(void) {
         {
             static ADCValues_t receivedValues;
             static BaseType_t xStatus;
-            xSemaphoreTake(R2D_semaphore,portMAX_DELAY);
+            xSemaphoreTake(R2D_semaphore, portMAX_DELAY);
             // Wait to receive data from the queue
             xStatus = xQueueReceive(Inverter_control_Queue, &receivedValues, portMAX_DELAY);
             if (xStatus == pdPASS) {
-                static uint16_t power = 0;
+                static int power = 0;
+                static int power_mean = 0;
 
                 // Process the received data
                 uint16_t adc0value = receivedValues.adc0value;
                 uint16_t adc3value = receivedValues.adc3value;
-                //printf("Received ADC0 Value: %u\n", adc0value); 
-                //printf("Received ADC3 Value: %u\n", adc3value);
+                // printf("Received ADC0 Value: %u\n", adc0value);
+                // printf("Received ADC3 Value: %u\n", adc3value);
 
-              
+                printf("\n\rADC0 Value: %u\n", adc0value);
+                printf("\n\rADC3 Value: %u\n", adc3value);
+                // power = APPS_Function(adc0value, adc3value);
+                // calculate mean value
+                power_mean = (adc0value + adc3value) / 2;
+                power = map(power_mean, 0, 4095, 0, 1000);
 
-                power = APPS_Function(adc0value, adc3value);
                 printf("\n\rPower: %u\n", power);
-                
+
                 // Send the data over CAN
                 uint32_t id = 0x14;
                 uint8_t length = 1;
                 uint8_t message[8];
-                message[0] = 0x01; //send drive enable signal
-                //send drive enable signal
-                CanSend( id,  length,  message);
+                message[0] = 0x01; // send drive enable signal
+                // send drive enable signal
+                xSemaphoreTake(CAN_Mutex, portMAX_DELAY);
+                {
+                    CanSend(id, length, message);
+                }
+                xSemaphoreGive(CAN_Mutex);
 
-                //send the data to the inverter control
+                // send the data to the inverter control
                 id = 0x24;
                 length = 6;
                 message[0] = adc0value & 0xFF;
@@ -179,20 +186,17 @@ void INVERTER_TASK_Tasks(void) {
                 message[3] = (adc3value >> 8) & 0xFF;
                 message[4] = power & 0xFF;
                 message[5] = (power >> 8) & 0xFF;
-                CanSend( id,  length,  message);
-            } 
-            /*for (int count = 8; count >=1; count--){
-                message[count - 1] = count;
+
+                xSemaphoreTake(CAN_Mutex, portMAX_DELAY); {
+                    CanSend(id, length, message);
+                }
+                xSemaphoreGive(CAN_Mutex);
             }
-            if(CAN1_MessageTransmit(0x69, 8, message, 0, CANFD_MODE_NORMAL, CANFD_MSG_TX_DATA_FRAME)){
 
-
-            }*/
             break;
         }
 
             /* TODO: implement your application state machine.*/
-
 
             /* The default state should never be executed. */
         default:
@@ -202,7 +206,6 @@ void INVERTER_TASK_Tasks(void) {
         }
     }
 }
-
 
 /*******************************************************************************
  End of File

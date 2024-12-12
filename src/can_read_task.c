@@ -57,7 +57,7 @@ uint8_t state;
     This structure should be initialized by the CAN_READ_TASK_Initialize function.
 
     Application strings and buffers are be defined outside this structure.
-*/
+ */
 
 CAN_READ_TASK_DATA can_read_taskData;
 
@@ -68,7 +68,7 @@ CAN_READ_TASK_DATA can_read_taskData;
 // *****************************************************************************
 
 /* TODO:  Add any necessary callback functions.
-*/
+ */
 
 // *****************************************************************************
 // *****************************************************************************
@@ -78,32 +78,35 @@ CAN_READ_TASK_DATA can_read_taskData;
 
 
 /* TODO:  Add any necessary local functions.
-*/
+ */
 void task_function();
 
+void task_function() {
 
-void task_function(){
-
-   // printf("\n\rCAN read\n\r");
+    // printf("\n\rCAN read\n\r");
     LED_RA10_Toggle();
     CANFD_MSG_RX_ATTRIBUTE msgAttr;
     uint8_t lenght;
     uint8_t rx_message[8];
-    if(CAN1_MessageReceive(&can_read_taskData.id,&lenght,rx_message, 0, 2,&msgAttr)==true){
+
+
+
+    if (CAN1_MessageReceive(&can_read_taskData.id, &lenght, rx_message, 0, 2, &msgAttr) == true) {
         //CAN1_MessageTransmit(0x200,lenght,can_read_taskData.rx_message,0, CANFD_MODE_NORMAL, CANFD_MSG_TX_DATA_FRAME);
-        switch(can_read_taskData.id){
+        switch (can_read_taskData.id) {
             case AS_EMERGENGENCY:
                 state = 1;
-                xQueueSend(AS_Emergency_Queue,&state,portMAX_DELAY);
+                xQueueSend(AS_Emergency_Queue, &state, portMAX_DELAY);
                 break;
             default:
                 break;
         }
-    }
-    else{
+    } else {
         taskYIELD();
     }
 }
+
+
 
 
 // *****************************************************************************
@@ -120,8 +123,7 @@ void task_function(){
     See prototype in can_read_task.h.
  */
 
-void CAN_READ_TASK_Initialize ( void )
-{
+void CAN_READ_TASK_Initialize(void) {
     /* Place the App state machine in its initial state. */
     can_read_taskData.state = CAN_READ_TASK_STATE_INIT;
 
@@ -132,7 +134,6 @@ void CAN_READ_TASK_Initialize ( void )
      */
 }
 
-
 /******************************************************************************
   Function:
     void CAN_READ_TASK_Tasks ( void )
@@ -141,20 +142,17 @@ void CAN_READ_TASK_Initialize ( void )
     See prototype in can_read_task.h.
  */
 
-void CAN_READ_TASK_Tasks ( void )
-{
+void CAN_READ_TASK_Tasks(void) {
 
     /* Check the application's current state. */
-    switch ( can_read_taskData.state )
-    {
-        /* Application's initial state. */
+    switch (can_read_taskData.state) {
+            /* Application's initial state. */
         case CAN_READ_TASK_STATE_INIT:
         {
             bool appInitialized = true;
 
 
-            if (appInitialized)
-            {
+            if (appInitialized) {
 
                 can_read_taskData.state = CAN_READ_TASK_STATE_SERVICE_TASKS;
             }
@@ -163,14 +161,20 @@ void CAN_READ_TASK_Tasks ( void )
 
         case CAN_READ_TASK_STATE_SERVICE_TASKS:
         {
-            task_function();
+
+            xSemaphoreTake(CAN_Mutex, portMAX_DELAY);
+            {
+                task_function();
+            }
+            xSemaphoreGive(CAN_Mutex);
+
             break;
         }
 
-        /* TODO: implement your application state machine.*/
+            /* TODO: implement your application state machine.*/
 
 
-        /* The default state should never be executed. */
+            /* The default state should never be executed. */
         default:
         {
             /* TODO: Handle error in application's state machine. */

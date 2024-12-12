@@ -21,5 +21,6 @@ extern QueueHandle_t AS_Emergency_Queue;
 //Declare semaphores
 
 extern xSemaphoreHandle R2D_semaphore;
+extern xSemaphoreHandle CAN_Mutex;
 
 #endif // QUEUE_MANAGER_H

@@ -48,7 +48,7 @@ int main(void) {
     Inverter_control_Queue = xQueueCreate(10, sizeof ( long));
     AS_Emergency_Queue = xQueueCreate(1,sizeof(uint8_t));
     
-    
+    CAN_Mutex = xSemaphoreCreateMutex();
     vSemaphoreCreateBinary(R2D_semaphore);
     while (true) {
         
