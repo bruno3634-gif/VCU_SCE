@@ -81,6 +81,8 @@
       <itemPath>../src/inverter_task.h</itemPath>
       <itemPath>queue_manager.h</itemPath>
       <itemPath>../src/as_emergency_task.h</itemPath>
+      <itemPath>../src/temperature.h</itemPath>
+      <itemPath>../src/printingf.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -170,6 +172,8 @@
       <itemPath>../src/as_emergency_task.c</itemPath>
       <itemPath>../src/APPS.c</itemPath>
       <itemPath>../src/APPS.h</itemPath>
+      <itemPath>../src/temperature.c</itemPath>
+      <itemPath>../src/printingf.c</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>

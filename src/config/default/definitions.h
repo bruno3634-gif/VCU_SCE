@@ -62,10 +62,12 @@
 #include "apps_task.h"
 #include "voltage_measurement_task.h"
 #include "inverter_task.h"
+#include "printingf.h"
 #include "r2d_task.h"
 #include "as_emergency_task.h"
 #include "main_task.h"
 #include "can_read_task.h"
+#include "temperature.h"
 #include "semphr.h"
 
 

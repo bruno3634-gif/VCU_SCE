@@ -4,7 +4,7 @@
 
 
 project: VCU_SCE
-creation_date: 2024-12-12T09:34:26.429Z[Europe/Lisbon]    # ISO 8601 format: https://www.w3.org/TR/NOTE-datetime
+creation_date: 2024-12-12T23:18:22.882Z[Europe/Lisbon]    # ISO 8601 format: https://www.w3.org/TR/NOTE-datetime
 operating_system: Linux
 mcc_mode: IDE            # [IDE|Standalone|Headless]
 mcc_version: v5.5.0

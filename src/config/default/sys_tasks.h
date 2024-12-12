@@ -69,6 +69,9 @@ extern TaskHandle_t xVOLTAGE_MEASUREMENT_TASK_Tasks;
 /* Declaration of  INVERTER_TASK_Tasks task handle */
 extern TaskHandle_t xINVERTER_TASK_Tasks;
 
+/* Declaration of  PRINTINGF_Tasks task handle */
+extern TaskHandle_t xPRINTINGF_Tasks;
+
 /* Declaration of  R2D_TASK_Tasks task handle */
 extern TaskHandle_t xR2D_TASK_Tasks;
 
@@ -80,6 +83,9 @@ extern TaskHandle_t xMAIN_TASK_Tasks;
 
 /* Declaration of  CAN_READ_TASK_Tasks task handle */
 extern TaskHandle_t xCAN_READ_TASK_Tasks;
+
+/* Declaration of  TEMPERATURE_Tasks task handle */
+extern TaskHandle_t xTEMPERATURE_Tasks;
 
 
 

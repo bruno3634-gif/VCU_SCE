@@ -5,7 +5,7 @@
     Microchip Technology Inc.
 
   File Name:
-    voltage_measurement_task.c
+    temperature.c
 
   Summary:
     This file contains the source code for the MPLAB Harmony application.
@@ -27,9 +27,11 @@
 // *****************************************************************************
 // *****************************************************************************
 
-#include "voltage_measurement_task.h"
-#include "definitions.h" 
-#include "toolchain_specifics.h"
+#include "temperature.h"
+
+#include "definitions.h"
+
+#include <math.h>
 
 // *****************************************************************************
 // *****************************************************************************
@@ -47,19 +49,14 @@
     This structure holds the application's data.
 
   Remarks:
-    This structure should be initialized by the VOLTAGE_MEASUREMENT_TASK_Initialize function.
+    This structure should be initialized by the TEMPERATURE_Initialize function.
 
     Application strings and buffers are be defined outside this structure.
-*/
+ */
 
-VOLTAGE_MEASUREMENT_TASK_DATA voltage_measurement_taskData;
+TEMPERATURE_DATA temperatureData;
 
- 
-xSemaphoreHandle voltageMeasurementSemaphore; 
- 
-__COHERENT uint16_t voltageMeasurementValue; 
-
-float MeasureVoltage(uint16_t);
+SemaphoreHandle_t ADC9_Temp_SEMAPHORE;
 
 // *****************************************************************************
 // *****************************************************************************
@@ -68,20 +65,52 @@ float MeasureVoltage(uint16_t);
 // *****************************************************************************
 
 /* TODO:  Add any necessary callback functions.
- * 
-*/
+ *
+ */
 
+void ADCHS_CH9_Callback(ADCHS_CHANNEL_NUM channel, uintptr_t context) {
+    static BaseType_t xHigherPriorityTaskWoken;
+    xHigherPriorityTaskWoken = pdFALSE;
 
-void ADCHS_CH8_Callback(ADCHS_CHANNEL_NUM channel, uintptr_t context) { 
-    static BaseType_t xHigherPriorityTaskWoken; 
- 
-    xHigherPriorityTaskWoken = pdFALSE; 
-    ADCHS_ChannelResultGet(ADCHS_CH8); 
-    xSemaphoreGiveFromISR(voltageMeasurementSemaphore, &xHigherPriorityTaskWoken); 
-    if (xHigherPriorityTaskWoken == pdTRUE) { 
-        portYIELD(); 
-    } 
-} 
+    ADCHS_ChannelResultGet(ADCHS_CH9);
+
+    xSemaphoreGiveFromISR(ADC9_Temp_SEMAPHORE, &xHigherPriorityTaskWoken);
+
+    if (xHigherPriorityTaskWoken == pdTRUE) {
+        portYIELD();
+    }
+}
+
+float MeasureTemperature(uint16_t bits) {
+    const float SERIES_RESISTOR = 10000.0f;       // 10k? resistor
+    const float NOMINAL_RESISTANCE = 10000.0f;    // NTC 10k? at 25°C
+    const float NOMINAL_TEMPERATURE = 25.0f;      // 25°C
+    const float B_COEFFICIENT = 3976.0f;          // B coefficient
+    const float ADC_MAX = 4095.0f;                // 12-bit ADC
+    const float V_REF = 3.3f;                     // Reference voltage
+
+    // Prevent division by zero
+    if (bits == 0) {
+        return -273.0f; // Return absolute zero (rounded) for invalid ADC value
+    }
+
+    // Calculate voltage from ADC bits
+    float voltage = (float)bits * V_REF / ADC_MAX;
+
+    // Calculate thermistor resistance
+    float resistance = SERIES_RESISTOR * (V_REF / voltage - 1.0f);
+
+    // Apply the Steinhart-Hart equation
+    float steinhart = resistance / NOMINAL_RESISTANCE;     // R/Ro
+    steinhart = log(steinhart);                            // ln(R/Ro)
+    steinhart /= B_COEFFICIENT;                            // (1/B) * ln(R/Ro)
+    steinhart += 1.0f / (NOMINAL_TEMPERATURE + 273.15f);   // + (1/To)
+    steinhart = 1.0f / steinhart;                         // Invert
+    steinhart -= 273.15f;                                 // Convert to Celsius
+
+    // Round to the nearest whole number
+    return roundf(steinhart);
+}
 
 // *****************************************************************************
 // *****************************************************************************
@@ -89,13 +118,8 @@ void ADCHS_CH8_Callback(ADCHS_CHANNEL_NUM channel, uintptr_t context) {
 // *****************************************************************************
 // *****************************************************************************
 
-
-// TODO:  Add any necessary local functions.
-unsigned int millis(void);
-
-unsigned int millis(void){
-  return (unsigned int)(CORETIMER_CounterGet() / (CORE_TIMER_FREQUENCY / 1000));
-}
+/* TODO:  Add any necessary local functions.
+ */
 
 // *****************************************************************************
 // *****************************************************************************
@@ -105,71 +129,77 @@ unsigned int millis(void){
 
 /*******************************************************************************
   Function:
-    void VOLTAGE_MEASUREMENT_TASK_Initialize ( void )
+    void TEMPERATURE_Initialize ( void )
 
   Remarks:
-    See prototype in voltage_measurement_task.h.
+    See prototype in temperature.h.
  */
 
-void VOLTAGE_MEASUREMENT_TASK_Initialize ( void )
-{
+void TEMPERATURE_Initialize(void) {
     /* Place the App state machine in its initial state. */
-    voltage_measurement_taskData.state = VOLTAGE_MEASUREMENT_TASK_STATE_INIT;
-    
-    ADCHS_CallbackRegister(ADCHS_CH8, ADCHS_CH8_Callback, (uintptr_t)NULL);  // Voltage Measurement 
-    ADCHS_ChannelResultInterruptEnable(ADCHS_CH8); 
-    ADCHS_ChannelConversionStart(ADCHS_CH8); 
- 
-    vSemaphoreCreateBinary(voltageMeasurementSemaphore); 
-    xSemaphoreTake(voltageMeasurementSemaphore, 0); 
+    temperatureData.state = TEMPERATURE_STATE_INIT;
+
+    ADCHS_CallbackRegister(ADCHS_CH9, ADCHS_CH9_Callback, (uintptr_t) NULL); // Voltage Measurement 
+    ADCHS_ChannelResultInterruptEnable(ADCHS_CH9);
+    ADCHS_ChannelConversionStart(ADCHS_CH9);
+
+    vSemaphoreCreateBinary(ADC9_Temp_SEMAPHORE);
+    xSemaphoreTake(ADC9_Temp_SEMAPHORE, 0);
 
     /* TODO: Initialize your application's state machine and other
      * parameters.
      */
 }
 
-
 /******************************************************************************
   Function:
-    void VOLTAGE_MEASUREMENT_TASK_Tasks ( void )
+    void TEMPERATURE_Tasks ( void )
 
   Remarks:
-    See prototype in voltage_measurement_task.h.
+    See prototype in temperature.h.
  */
 
-void VOLTAGE_MEASUREMENT_TASK_Tasks ( void )
-{
-
+void TEMPERATURE_Tasks(void) {
     /* Check the application's current state. */
-    switch ( voltage_measurement_taskData.state )
-    {
-        /* Application's initial state. */
-        case VOLTAGE_MEASUREMENT_TASK_STATE_INIT:
+    switch (temperatureData.state) {
+            /* Application's initial state. */
+        case TEMPERATURE_STATE_INIT:
         {
             bool appInitialized = true;
 
-
-            if (appInitialized)
-            {
-                ADCHS_ChannelConversionStart(ADCHS_CH8);
-
-                voltage_measurement_taskData.state = VOLTAGE_MEASUREMENT_TASK_STATE_SERVICE_TASKS;
+            if (appInitialized) {
+                temperatureData.state = TEMPERATURE_STATE_SERVICE_TASKS;
             }
             break;
         }
 
-        case VOLTAGE_MEASUREMENT_TASK_STATE_SERVICE_TASKS:
+        case TEMPERATURE_STATE_SERVICE_TASKS:
         {
-            xSemaphoreTake(voltageMeasurementSemaphore, portMAX_DELAY); 
-            voltageMeasurementValue = MeasureVoltage(ADCHS_ChannelResultGet(ADCHS_CH8)); 
-            ADCHS_ChannelConversionStart(ADCHS_CH8);
+            static float lastTemperature1 = 0.0;
+            static float lastTemperature2 = 0.0;
+
+            xSemaphoreTake(ADC9_Temp_SEMAPHORE, portMAX_DELAY);
+            uint16_t adcValue = ADCHS_ChannelResultGet(ADCHS_CH9);
+
+            float newTemperature = MeasureTemperature(adcValue);
+
+            // Calculate the mean temperature with the last two values and the new one
+            float meanTemperature = (lastTemperature1 + lastTemperature2 + newTemperature) / 3.0;
+            printf("\n\rMean Temperature = %.f C", roundf(meanTemperature));
+
+            // Update the last temperature values
+            lastTemperature1 = lastTemperature2;
+            lastTemperature2 = newTemperature;
+
+            // Start the next conversion
+            ADCHS_ChannelConversionStart(ADCHS_CH9);
+
             break;
         }
 
-        /* TODO: implement your application state machine.*/
+            /* TODO: implement your application state machine.*/
 
-
-        /* The default state should never be executed. */
+            /* The default state should never be executed. */
         default:
         {
             /* TODO: Handle error in application's state machine. */
@@ -177,48 +207,6 @@ void VOLTAGE_MEASUREMENT_TASK_Tasks ( void )
         }
     }
 }
-
-/// @brief Measure the voltage from a ADC channel
-/// @param channel  ADC channel to measure the voltage
-float MeasureVoltage(uint16_t bits) {
-    float PDM_Voltage;
-//    float LV_SOC;
-    PDM_Voltage = ((float)bits * 3.30 / 4095.000) / 0.1155;
-    //24.0 = 0% and 28.0 = 100%
-    //LV_SOC = (uint16_t)((PDM_Voltage - 24.0) * 1000 / 4.0);
-    //printf("\n\rPDM VALUE = %f",PDM_Voltage);
-    if (PDM_Voltage >= 25) {
-        // set pin
-        GPIO_RG9_LV_ON_Set();
-    } else if (PDM_Voltage < 25) {
-        static uint16_t previousMillis = 0;
-        uint16_t currentMillis = 0;
-        uint16_t interval = 0;
-
-        currentMillis = millis();
-        interval = currentMillis - previousMillis;
-
-        if (PDM_Voltage < 25 && PDM_Voltage >= 24) {
-            if (interval >= 500) {
-                GPIO_RG9_LV_ON_Toggle();
-                previousMillis = currentMillis;
-            }
-        } else if (PDM_Voltage < 24 && PDM_Voltage >= 23) {
-            if (interval >= 100) {
-                GPIO_RG9_LV_ON_Toggle();
-                previousMillis = currentMillis;
-            }
-        } else if (PDM_Voltage < 23) {
-            if (interval >= 0) {
-                GPIO_RG9_LV_ON_Toggle();
-                previousMillis = currentMillis;
-            }
-        }
-    }
-
-    return PDM_Voltage;
-}
-
 
 /*******************************************************************************
  End of File

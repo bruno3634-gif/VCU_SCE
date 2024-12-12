@@ -142,6 +142,24 @@ IntVectorADC_DATA8_Handler:
     nop
     portRESTORE_CONTEXT
     .end   IntVectorADC_DATA8_Handler
+    .extern  ADC_DATA9_Handler
+
+    .section   .vector_115,code, keep
+    .equ     __vector_dispatch_115, IntVectorADC_DATA9_Handler
+    .global  __vector_dispatch_115
+    .set     nomicromips
+    .set     noreorder
+    .set     nomips16
+    .set     noat
+    .ent  IntVectorADC_DATA9_Handler
+
+IntVectorADC_DATA9_Handler:
+    portSAVE_CONTEXT
+    la    s6,  ADC_DATA9_Handler
+    jalr  s6
+    nop
+    portRESTORE_CONTEXT
+    .end   IntVectorADC_DATA9_Handler
     .extern  ADC_DATA15_Handler
 
     .section   .vector_121,code, keep

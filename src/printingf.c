@@ -5,7 +5,7 @@
     Microchip Technology Inc.
 
   File Name:
-    voltage_measurement_task.c
+    printingf.c
 
   Summary:
     This file contains the source code for the MPLAB Harmony application.
@@ -27,9 +27,7 @@
 // *****************************************************************************
 // *****************************************************************************
 
-#include "voltage_measurement_task.h"
-#include "definitions.h" 
-#include "toolchain_specifics.h"
+#include "printingf.h"
 
 // *****************************************************************************
 // *****************************************************************************
@@ -47,19 +45,12 @@
     This structure holds the application's data.
 
   Remarks:
-    This structure should be initialized by the VOLTAGE_MEASUREMENT_TASK_Initialize function.
+    This structure should be initialized by the PRINTINGF_Initialize function.
 
     Application strings and buffers are be defined outside this structure.
 */
 
-VOLTAGE_MEASUREMENT_TASK_DATA voltage_measurement_taskData;
-
- 
-xSemaphoreHandle voltageMeasurementSemaphore; 
- 
-__COHERENT uint16_t voltageMeasurementValue; 
-
-float MeasureVoltage(uint16_t);
+PRINTINGF_DATA printingfData;
 
 // *****************************************************************************
 // *****************************************************************************
@@ -68,20 +59,7 @@ float MeasureVoltage(uint16_t);
 // *****************************************************************************
 
 /* TODO:  Add any necessary callback functions.
- * 
 */
-
-
-void ADCHS_CH8_Callback(ADCHS_CHANNEL_NUM channel, uintptr_t context) { 
-    static BaseType_t xHigherPriorityTaskWoken; 
- 
-    xHigherPriorityTaskWoken = pdFALSE; 
-    ADCHS_ChannelResultGet(ADCHS_CH8); 
-    xSemaphoreGiveFromISR(voltageMeasurementSemaphore, &xHigherPriorityTaskWoken); 
-    if (xHigherPriorityTaskWoken == pdTRUE) { 
-        portYIELD(); 
-    } 
-} 
 
 // *****************************************************************************
 // *****************************************************************************
@@ -90,12 +68,9 @@ void ADCHS_CH8_Callback(ADCHS_CHANNEL_NUM channel, uintptr_t context) {
 // *****************************************************************************
 
 
-// TODO:  Add any necessary local functions.
-unsigned int millis(void);
+/* TODO:  Add any necessary local functions.
+*/
 
-unsigned int millis(void){
-  return (unsigned int)(CORETIMER_CounterGet() / (CORE_TIMER_FREQUENCY / 1000));
-}
 
 // *****************************************************************************
 // *****************************************************************************
@@ -105,23 +80,18 @@ unsigned int millis(void){
 
 /*******************************************************************************
   Function:
-    void VOLTAGE_MEASUREMENT_TASK_Initialize ( void )
+    void PRINTINGF_Initialize ( void )
 
   Remarks:
-    See prototype in voltage_measurement_task.h.
+    See prototype in printingf.h.
  */
 
-void VOLTAGE_MEASUREMENT_TASK_Initialize ( void )
+void PRINTINGF_Initialize ( void )
 {
     /* Place the App state machine in its initial state. */
-    voltage_measurement_taskData.state = VOLTAGE_MEASUREMENT_TASK_STATE_INIT;
-    
-    ADCHS_CallbackRegister(ADCHS_CH8, ADCHS_CH8_Callback, (uintptr_t)NULL);  // Voltage Measurement 
-    ADCHS_ChannelResultInterruptEnable(ADCHS_CH8); 
-    ADCHS_ChannelConversionStart(ADCHS_CH8); 
- 
-    vSemaphoreCreateBinary(voltageMeasurementSemaphore); 
-    xSemaphoreTake(voltageMeasurementSemaphore, 0); 
+    printingfData.state = PRINTINGF_STATE_INIT;
+
+
 
     /* TODO: Initialize your application's state machine and other
      * parameters.
@@ -131,38 +101,35 @@ void VOLTAGE_MEASUREMENT_TASK_Initialize ( void )
 
 /******************************************************************************
   Function:
-    void VOLTAGE_MEASUREMENT_TASK_Tasks ( void )
+    void PRINTINGF_Tasks ( void )
 
   Remarks:
-    See prototype in voltage_measurement_task.h.
+    See prototype in printingf.h.
  */
 
-void VOLTAGE_MEASUREMENT_TASK_Tasks ( void )
+void PRINTINGF_Tasks ( void )
 {
 
     /* Check the application's current state. */
-    switch ( voltage_measurement_taskData.state )
+    switch ( printingfData.state )
     {
         /* Application's initial state. */
-        case VOLTAGE_MEASUREMENT_TASK_STATE_INIT:
+        case PRINTINGF_STATE_INIT:
         {
             bool appInitialized = true;
 
 
             if (appInitialized)
             {
-                ADCHS_ChannelConversionStart(ADCHS_CH8);
 
-                voltage_measurement_taskData.state = VOLTAGE_MEASUREMENT_TASK_STATE_SERVICE_TASKS;
+                printingfData.state = PRINTINGF_STATE_SERVICE_TASKS;
             }
             break;
         }
 
-        case VOLTAGE_MEASUREMENT_TASK_STATE_SERVICE_TASKS:
+        case PRINTINGF_STATE_SERVICE_TASKS:
         {
-            xSemaphoreTake(voltageMeasurementSemaphore, portMAX_DELAY); 
-            voltageMeasurementValue = MeasureVoltage(ADCHS_ChannelResultGet(ADCHS_CH8)); 
-            ADCHS_ChannelConversionStart(ADCHS_CH8);
+
             break;
         }
 
@@ -176,47 +143,6 @@ void VOLTAGE_MEASUREMENT_TASK_Tasks ( void )
             break;
         }
     }
-}
-
-/// @brief Measure the voltage from a ADC channel
-/// @param channel  ADC channel to measure the voltage
-float MeasureVoltage(uint16_t bits) {
-    float PDM_Voltage;
-//    float LV_SOC;
-    PDM_Voltage = ((float)bits * 3.30 / 4095.000) / 0.1155;
-    //24.0 = 0% and 28.0 = 100%
-    //LV_SOC = (uint16_t)((PDM_Voltage - 24.0) * 1000 / 4.0);
-    //printf("\n\rPDM VALUE = %f",PDM_Voltage);
-    if (PDM_Voltage >= 25) {
-        // set pin
-        GPIO_RG9_LV_ON_Set();
-    } else if (PDM_Voltage < 25) {
-        static uint16_t previousMillis = 0;
-        uint16_t currentMillis = 0;
-        uint16_t interval = 0;
-
-        currentMillis = millis();
-        interval = currentMillis - previousMillis;
-
-        if (PDM_Voltage < 25 && PDM_Voltage >= 24) {
-            if (interval >= 500) {
-                GPIO_RG9_LV_ON_Toggle();
-                previousMillis = currentMillis;
-            }
-        } else if (PDM_Voltage < 24 && PDM_Voltage >= 23) {
-            if (interval >= 100) {
-                GPIO_RG9_LV_ON_Toggle();
-                previousMillis = currentMillis;
-            }
-        } else if (PDM_Voltage < 23) {
-            if (interval >= 0) {
-                GPIO_RG9_LV_ON_Toggle();
-                previousMillis = currentMillis;
-            }
-        }
-    }
-
-    return PDM_Voltage;
 }
 
 
