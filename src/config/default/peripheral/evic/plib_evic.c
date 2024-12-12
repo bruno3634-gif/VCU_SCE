@@ -45,7 +45,6 @@
 #include "interrupts.h"
 
 
-volatile static EXT_INT_PIN_CALLBACK_OBJ extInt3CbObj;
 // *****************************************************************************
 // *****************************************************************************
 // Section: IRQ Implementation
@@ -57,7 +56,6 @@ void EVIC_Initialize( void )
     INTCONSET = _INTCON_MVEC_MASK;
 
     /* Set up priority and subpriority of enabled interrupts */
-    IPC4SET = 0x40000U | 0x0U;  /* EXTERNAL_3:  Priority 1 / Subpriority 0 */
     IPC11SET = 0x4U | 0x0U;  /* CHANGE_NOTICE_A:  Priority 1 / Subpriority 0 */
     IPC25SET = 0x400U | 0x0U;  /* ADC_EOS:  Priority 1 / Subpriority 0 */
     IPC26SET = 0x40000U | 0x0U;  /* ADC_DATA0:  Priority 1 / Subpriority 0 */
@@ -65,8 +63,6 @@ void EVIC_Initialize( void )
     IPC28SET = 0x40000U | 0x0U;  /* ADC_DATA8:  Priority 1 / Subpriority 0 */
     IPC30SET = 0x400U | 0x0U;  /* ADC_DATA15:  Priority 1 / Subpriority 0 */
 
-    /* Initialize External interrupt 3 callback object */
-    extInt3CbObj.callback = NULL;
 
 }
 
@@ -162,61 +158,6 @@ void EVIC_INT_SourceRestore( INT_SOURCE source, bool status )
     }
 
     return;
-}
-
-void EVIC_ExternalInterruptEnable( EXTERNAL_INT_PIN extIntPin )
-{
-    IEC0SET = (uint32_t)extIntPin;
-}
-
-void EVIC_ExternalInterruptDisable( EXTERNAL_INT_PIN extIntPin )
-{
-    IEC0CLR = (uint32_t)extIntPin;
-}
-
-bool EVIC_ExternalInterruptCallbackRegister(
-    EXTERNAL_INT_PIN extIntPin,
-    const EXTERNAL_INT_PIN_CALLBACK callback,
-    uintptr_t context
-)
-{
-    bool status = true;
-    switch  (extIntPin)
-        {
-        case EXTERNAL_INT_3:
-            extInt3CbObj.callback = callback;
-            extInt3CbObj.context  = context;
-            break;
-        default:
-            status = false;
-            break;
-        }
-
-    return status;
-}
-
-
-// *****************************************************************************
-/* Function:
-    void EXTERNAL_3_InterruptHandler(void)
-
-  Summary:
-    Interrupt Handler for External Interrupt pin 3.
-
-  Remarks:
-    It is an internal function called from ISR, user should not call it directly.
-*/
-void __attribute__((used)) EXTERNAL_3_InterruptHandler(void)
-{
-    uintptr_t context_var;
-
-    IFS0CLR = _IFS0_INT3IF_MASK;
-
-    if(extInt3CbObj.callback != NULL)
-    {
-        context_var = extInt3CbObj.context;
-        extInt3CbObj.callback (EXTERNAL_INT_3, context_var);
-    }
 }
 
 

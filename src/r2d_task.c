@@ -81,31 +81,15 @@ volatile int r2d = 0;
 xSemaphoreHandle ADC15_BP_SEMAPHORE; 
 xSemaphoreHandle R2D_BTN_SEMAPHORE; 
 
+
+
+
 unsigned int millis1(void){
   return (unsigned int)(CORETIMER_CounterGet() / (CORE_TIMER_FREQUENCY / 1000));
 }
 
 
-void SOUND_R2DS(void);
 
-void SOUND_R2DS(void) {
-    /*if(r2d == 1){
-        if(buzzer_Get() == 0){
-            buzzer_Set();
-        }
-        else{
-            if(Time + 1000 < millis1()){
-                buzzer_Clear();
-                r2d_taskData.state = R2D_TASK_R2D_STATE;
-            }
-        }
-    }else{
-        Time = millis1();
-        buzzer_Clear();
-    }*/buzzer_Clear();
-    
-   // LED_F1_Toggle();
-}
 
 /// @brief Measure the brake pressure from an ADC channel
 /// @param bits ADC channel to measure the brake pressure
@@ -173,7 +157,6 @@ void R2D_TASK_Initialize ( void )
     GPIO_PinInterruptCallbackRegister(IGNITION_PIN,r2d_int,0);
     GPIO_PinIntDisable(IGNITION_PIN);
     LED_F1_Set();
-    
     ADCHS_CallbackRegister(ADCHS_CH15, ADCHS_CH15_Callback, (uintptr_t)NULL);  // Voltage Measurement 
     ADCHS_ChannelResultInterruptEnable(ADCHS_CH15); 
     ADCHS_ChannelConversionStart(ADCHS_CH15);   
@@ -181,6 +164,8 @@ void R2D_TASK_Initialize ( void )
     xSemaphoreTake(ADC15_BP_SEMAPHORE, 0); 
     vSemaphoreCreateBinary(R2D_BTN_SEMAPHORE);
     xSemaphoreTake(R2D_BTN_SEMAPHORE,0);
+
+    
  
 
     /* TODO: Initialize your application's state machine and other
@@ -244,13 +229,15 @@ void R2D_TASK_Tasks ( void )
         }
         case R2D_TASK_BUZZING:
             GPIO_PinIntDisable(IGNITION_PIN);
-            SOUND_R2DS();
             r2d_taskData.state = R2D_TASK_R2D_STATE;
+            LED_F1_Set();
+            buzzer_Clear();
+            vTaskDelay(pdMS_TO_TICKS(1000));
+            buzzer_Set();
             break;
         case R2D_TASK_R2D_STATE:
             GPIO_PinIntDisable(IGNITION_PIN);
-            if(R2D_S_Get() == 1){
-                LED_F1_Set();
+            if(R2D_S_Get() == 1){           
                 buzzer_Set();
                 xSemaphoreGive(R2D_semaphore);
                 

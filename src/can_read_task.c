@@ -43,7 +43,14 @@
 uint8_t state;
 #define AS_EMERGENGENCY 0x502
 
+typedef struct {
+    uint32_t id;         // CAN ID
+    uint8_t data[8];     // CAN data (up to 8 bytes)
+    uint8_t dlc;         // Data length code
+}Received_CANMessage;
 
+
+Received_CANMessage message_to_send;
 // *****************************************************************************
 /* Application Data
 
@@ -83,8 +90,6 @@ void task_function();
 
 
 void task_function(){
-
-   // printf("\n\rCAN read\n\r");
     LED_RA10_Toggle();
     CANFD_MSG_RX_ATTRIBUTE msgAttr;
     uint8_t lenght;
@@ -93,8 +98,12 @@ void task_function(){
         //CAN1_MessageTransmit(0x200,lenght,can_read_taskData.rx_message,0, CANFD_MODE_NORMAL, CANFD_MSG_TX_DATA_FRAME);
         switch(can_read_taskData.id){
             case AS_EMERGENGENCY:
-                state = 1;
-                xQueueSend(AS_Emergency_Queue,&state,portMAX_DELAY);
+                message_to_send.id = can_read_taskData.id;
+                message_to_send.dlc = lenght;
+                for(int i = 0; i<8;i++){
+                    message_to_send.data[i] = rx_message[i];
+                }
+                xQueueSend(AS_Emergency_Queue,&message_to_send,portMAX_DELAY);
                 break;
             default:
                 break;
