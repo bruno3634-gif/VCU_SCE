@@ -31,6 +31,7 @@
 #include "portmacro.h"
 #include "queue.h"
 #include"../SCE_VCU_FreeRTOS.X/queue_manager.h"
+#include "definitions.h"
 // *****************************************************************************
 // *****************************************************************************
 // Section: Global Data Definitions
@@ -54,6 +55,17 @@
 
 AS_EMERGENCY_TASK_DATA as_emergency_taskData;
 
+typedef struct {
+    uint32_t id;         // CAN ID
+    uint8_t data[8];     // CAN data (up to 8 bytes)
+    uint8_t dlc;         // Data length code
+}Received_CANMessage;
+
+int time_counter = 0; 
+
+Received_CANMessage CAN_R_Q;
+int value = 0;
+int prev_value = 0;
 // *****************************************************************************
 // *****************************************************************************
 // Section: Application Callback Functions
@@ -68,6 +80,8 @@ AS_EMERGENCY_TASK_DATA as_emergency_taskData;
 // Section: Application Local Functions
 // *****************************************************************************
 // *****************************************************************************
+
+
 
 
 /* TODO:  Add any necessary local functions.
@@ -92,9 +106,6 @@ void AS_EMERGENCY_TASK_Initialize ( void )
 {
     /* Place the App state machine in its initial state. */
     as_emergency_taskData.state = AS_EMERGENCY_TASK_STATE_INIT;
-
-
-
     /* TODO: Initialize your application's state machine and other
      * parameters.
      */
@@ -131,15 +142,26 @@ void AS_EMERGENCY_TASK_Tasks ( void )
 
         case AS_EMERGENCY_TASK_STATE_SERVICE_TASKS:
         {
-            static uint8_t receivedValue;
             static BaseType_t xStatus;
 
             // Wait to receive data from the queue
-            xStatus = xQueueReceive(Inverter_control_Queue, &receivedValue, portMAX_DELAY);
+            buzzer_Set();
+            xStatus = xQueueReceive(AS_Emergency_Queue,&CAN_R_Q , portMAX_DELAY);
+            value = CAN_R_Q.data[0] & 0b00000111;
             if(xStatus == pdPASS){
-                if(receivedValue == 1){
-                    //CALL EMERGENCY function
+                if(prev_value != 4){
+                    if(value == 4)
+                    {
+                        //emergency
+                        for(int i = 0; i<32;i++){
+                            buzzer_Toggle();
+                            vTaskDelay(pdMS_TO_TICKS(250));
+                        }
+                        buzzer_Set();
+                    }
                 }
+                prev_value = value;
+                
             }
             break;
         }
