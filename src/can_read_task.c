@@ -104,6 +104,7 @@ void task_function(){
                     message_to_send.data[i] = rx_message[i];
                 }
                 xQueueSend(AS_Emergency_Queue,&message_to_send,portMAX_DELAY);
+                printf("\r\n\n\nReceived 0x502\r\n\n\n");
                 break;
             default:
                 break;

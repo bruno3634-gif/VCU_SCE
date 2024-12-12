@@ -123,6 +123,7 @@ void ADCHS_CH15_Callback(ADCHS_CHANNEL_NUM channel, uintptr_t context) {
 
 
 void r2d_int(GPIO_PIN pin, uintptr_t context){
+    GPIO_PinIntDisable(IGNITION_PIN);
     static BaseType_t xHigherPriorityTaskWoken; 
     xHigherPriorityTaskWoken = pdFALSE; 
     
@@ -212,18 +213,15 @@ void R2D_TASK_Tasks ( void )
                 if(xSemaphoreTake(R2D_BTN_SEMAPHORE,pdMS_TO_TICKS(50)) == pdTRUE){
                     ADCHS_ChannelConversionStart(ADCHS_CH15);
                     xSemaphoreTake(ADC15_BP_SEMAPHORE, portMAX_DELAY);
-                    if(MeasureBrakePressure(ADCHS_ChannelResultGet(ADCHS_CH15)) >= -1){
+                    if(MeasureBrakePressure(ADCHS_ChannelResultGet(ADCHS_CH15)) >= 100){
                         r2d_taskData.state = R2D_TASK_BUZZING;
                     }
                     printf("\n\n\rbp: %f\n\r", MeasureBrakePressure(ADCHS_ChannelResultGet(ADCHS_CH15)));
-                    GPIO_PinIntDisable(IGNITION_PIN);
                     }
                 }
-
             else{
                 GPIO_PinIntDisable(IGNITION_PIN);
-                r2d_taskData.state = R2D_TASK_STATE_SERVICE_TASKS;
-                //change states
+                r2d_taskData.state = R2D_TASK_STATE_INIT;
             }
             break;
         }
