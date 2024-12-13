@@ -63,6 +63,7 @@ uint32_t id = 0x14;
 uint8_t length = 8;
 uint8_t message[8];
 float bp = 0;
+float bp1 = 0,bp2 = 0,bp3 = 0;
 
 // *****************************************************************************
 // *****************************************************************************
@@ -267,7 +268,10 @@ void R2D_TASK_Tasks(void) {
     ADCHS_ChannelConversionStart(ADCHS_CH15);
     xSemaphoreTake(ADC15_BP_SEMAPHORE, portMAX_DELAY);
     bp = MeasureBrakePressure(ADCHS_ChannelResultGet(ADCHS_CH15));
-    int pressure = bp*10;
+    bp3 = bp2;
+    bp2 = bp1;
+    bp1 = bp;
+    int pressure = (bp + bp1 + bp2 + bp3)*10/4;
     message[2] = (pressure >> 8) & 0xFF; // High byte
     message[3] = pressure & 0xFF;
     CanSend(id,length,message);
