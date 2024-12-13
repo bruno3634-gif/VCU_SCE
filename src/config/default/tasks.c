@@ -104,6 +104,17 @@ static void lINVERTER_TASK_Tasks(  void *pvParameters  )
         vTaskDelay(50U / portTICK_PERIOD_MS);
     }
 }
+/* Handle for the PRINTINGF_Tasks. */
+TaskHandle_t xPRINTINGF_Tasks;
+
+static void lPRINTINGF_Tasks(  void *pvParameters  )
+{   
+    while(true)
+    {
+        PRINTINGF_Tasks();
+        vTaskDelay(200U / portTICK_PERIOD_MS);
+    }
+}
 /* Handle for the R2D_TASK_Tasks. */
 TaskHandle_t xR2D_TASK_Tasks;
 
@@ -146,6 +157,17 @@ static void lCAN_READ_TASK_Tasks(  void *pvParameters  )
     {
         CAN_READ_TASK_Tasks();
         vTaskDelay(50U / portTICK_PERIOD_MS);
+    }
+}
+/* Handle for the TEMPERATURE_Tasks. */
+TaskHandle_t xTEMPERATURE_Tasks;
+
+static void lTEMPERATURE_Tasks(  void *pvParameters  )
+{   
+    while(true)
+    {
+        TEMPERATURE_Tasks();
+        vTaskDelay(333U / portTICK_PERIOD_MS);
     }
 }
 
@@ -209,6 +231,14 @@ void SYS_Tasks ( void )
                 3,
                 &xINVERTER_TASK_Tasks);
 
+    /* Create OS Thread for PRINTINGF_Tasks. */
+    (void) xTaskCreate((TaskFunction_t) lPRINTINGF_Tasks,
+                "PRINTINGF_Tasks",
+                1024,
+                NULL,
+                1,
+                &xPRINTINGF_Tasks);
+
     /* Create OS Thread for R2D_TASK_Tasks. */
     (void) xTaskCreate((TaskFunction_t) lR2D_TASK_Tasks,
                 "R2D_TASK_Tasks",
@@ -240,6 +270,14 @@ void SYS_Tasks ( void )
                 NULL,
                 5,
                 &xCAN_READ_TASK_Tasks);
+
+    /* Create OS Thread for TEMPERATURE_Tasks. */
+    (void) xTaskCreate((TaskFunction_t) lTEMPERATURE_Tasks,
+                "TEMPERATURE_Tasks",
+                256,
+                NULL,
+                1,
+                &xTEMPERATURE_Tasks);
 
 
 

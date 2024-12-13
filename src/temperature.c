@@ -5,7 +5,7 @@
     Microchip Technology Inc.
 
   File Name:
-    inverter_task.c
+    temperature.c
 
   Summary:
     This file contains the source code for the MPLAB Harmony application.
@@ -27,19 +27,11 @@
 // *****************************************************************************
 // *****************************************************************************
 
-#include "inverter_task.h"
+#include "temperature.h"
 
-#include <stdio.h>
-
-#include "apps_task.h"
-#ifndef FREERTOS_H
-#include "FreeRTOS.h"
-#endif
-#include "../../APPS.h"
-#include "../SCE_VCU_FreeRTOS.X/queue_manager.h"
 #include "definitions.h"
-#include "queue.h"
-#include "semphr.h"
+
+#include <math.h>
 
 // *****************************************************************************
 // *****************************************************************************
@@ -57,19 +49,15 @@
     This structure holds the application's data.
 
   Remarks:
-    This structure should be initialized by the INVERTER_TASK_Initialize function.
+    This structure should be initialized by the TEMPERATURE_Initialize function.
 
     Application strings and buffers are be defined outside this structure.
  */
 
-INVERTER_TASK_DATA inverter_taskData;
+TEMPERATURE_DATA temperatureData;
 
-// Define a structure to hold the ADC values
+SemaphoreHandle_t ADC9_Temp_SEMAPHORE;
 
-typedef struct {
-    uint16_t adc0value;
-    uint16_t adc3value;
-} ADCValues_t;
 // *****************************************************************************
 // *****************************************************************************
 // Section: Application Callback Functions
@@ -77,7 +65,52 @@ typedef struct {
 // *****************************************************************************
 
 /* TODO:  Add any necessary callback functions.
+ *
  */
+
+void ADCHS_CH9_Callback(ADCHS_CHANNEL_NUM channel, uintptr_t context) {
+    static BaseType_t xHigherPriorityTaskWoken;
+    xHigherPriorityTaskWoken = pdFALSE;
+
+    ADCHS_ChannelResultGet(ADCHS_CH9);
+
+    xSemaphoreGiveFromISR(ADC9_Temp_SEMAPHORE, &xHigherPriorityTaskWoken);
+
+    if (xHigherPriorityTaskWoken == pdTRUE) {
+        portYIELD();
+    }
+}
+
+float MeasureTemperature(uint16_t bits) {
+    const float SERIES_RESISTOR = 10000.0f;       // 10k? resistor
+    const float NOMINAL_RESISTANCE = 10000.0f;    // NTC 10k? at 25°C
+    const float NOMINAL_TEMPERATURE = 25.0f;      // 25°C
+    const float B_COEFFICIENT = 3976.0f;          // B coefficient
+    const float ADC_MAX = 4095.0f;                // 12-bit ADC
+    const float V_REF = 3.3f;                     // Reference voltage
+
+    // Prevent division by zero
+    if (bits == 0) {
+        return -273.0f; // Return absolute zero (rounded) for invalid ADC value
+    }
+
+    // Calculate voltage from ADC bits
+    float voltage = (float)bits * V_REF / ADC_MAX;
+
+    // Calculate thermistor resistance
+    float resistance = SERIES_RESISTOR * (V_REF / voltage - 1.0f);
+
+    // Apply the Steinhart-Hart equation
+    float steinhart = resistance / NOMINAL_RESISTANCE;     // R/Ro
+    steinhart = log(steinhart);                            // ln(R/Ro)
+    steinhart /= B_COEFFICIENT;                            // (1/B) * ln(R/Ro)
+    steinhart += 1.0f / (NOMINAL_TEMPERATURE + 273.15f);   // + (1/To)
+    steinhart = 1.0f / steinhart;                         // Invert
+    steinhart -= 273.15f;                                 // Convert to Celsius
+
+    // Round to the nearest whole number
+    return roundf(steinhart);
+}
 
 // *****************************************************************************
 // *****************************************************************************
@@ -87,13 +120,6 @@ typedef struct {
 
 /* TODO:  Add any necessary local functions.
  */
-bool CanSend(uint32_t id, uint8_t length, uint8_t *buffer) {
-    return CAN1_MessageTransmit(id, length, buffer, 0, CANFD_MODE_NORMAL, CANFD_MSG_TX_DATA_FRAME);
-}
-
-long map(long x, long in_min, long in_max, long out_min, long out_max) {
-    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-}
 
 // *****************************************************************************
 // *****************************************************************************
@@ -103,95 +129,70 @@ long map(long x, long in_min, long in_max, long out_min, long out_max) {
 
 /*******************************************************************************
   Function:
-    void INVERTER_TASK_Initialize ( void )
+    void TEMPERATURE_Initialize ( void )
 
   Remarks:
-    See prototype in inverter_task.h.
+    See prototype in temperature.h.
  */
 
-void INVERTER_TASK_Initialize(void) {
+void TEMPERATURE_Initialize(void) {
     /* Place the App state machine in its initial state. */
-    inverter_taskData.state = INVERTER_TASK_STATE_INIT;
+    temperatureData.state = TEMPERATURE_STATE_INIT;
 
-    CAN1_Initialize();
-    APPS_Init(0.5, 4.5, 0.1, 0);
+    ADCHS_CallbackRegister(ADCHS_CH9, ADCHS_CH9_Callback, (uintptr_t) NULL); // Voltage Measurement 
+    ADCHS_ChannelResultInterruptEnable(ADCHS_CH9);
+    ADCHS_ChannelConversionStart(ADCHS_CH9);
+
+    vSemaphoreCreateBinary(ADC9_Temp_SEMAPHORE);
+    xSemaphoreTake(ADC9_Temp_SEMAPHORE, 0);
+
+    /* TODO: Initialize your application's state machine and other
+     * parameters.
+     */
 }
 
 /******************************************************************************
   Function:
-    void INVERTER_TASK_Tasks ( void )
+    void TEMPERATURE_Tasks ( void )
 
   Remarks:
-    See prototype in inverter_task.h.
+    See prototype in temperature.h.
  */
 
-void INVERTER_TASK_Tasks(void) {
+void TEMPERATURE_Tasks(void) {
     /* Check the application's current state. */
-    switch (inverter_taskData.state) {
+    switch (temperatureData.state) {
             /* Application's initial state. */
-        case INVERTER_TASK_STATE_INIT:
+        case TEMPERATURE_STATE_INIT:
         {
             bool appInitialized = true;
 
             if (appInitialized) {
-                inverter_taskData.state = INVERTER_TASK_STATE_SERVICE_TASKS;
+                temperatureData.state = TEMPERATURE_STATE_SERVICE_TASKS;
             }
             break;
         }
 
-        case INVERTER_TASK_STATE_SERVICE_TASKS:
+        case TEMPERATURE_STATE_SERVICE_TASKS:
         {
-            static ADCValues_t receivedValues;
-            static BaseType_t xStatus;
-            xSemaphoreTake(R2D_semaphore, portMAX_DELAY);
-            // Wait to receive data from the queue
-            xStatus = xQueueReceive(Inverter_control_Queue, &receivedValues, portMAX_DELAY);
-            if (xStatus == pdPASS) {
-                static int power = 0;
-                static int power_mean = 0;
+            static float lastTemperature1 = 0.0;
+            static float lastTemperature2 = 0.0;
 
-                // Process the received data
-                uint16_t adc0value = receivedValues.adc0value;
-                uint16_t adc3value = receivedValues.adc3value;
-                // printf("Received ADC0 Value: %u\n", adc0value);
-                // printf("Received ADC3 Value: %u\n", adc3value);
+            xSemaphoreTake(ADC9_Temp_SEMAPHORE, portMAX_DELAY);
+            uint16_t adcValue = ADCHS_ChannelResultGet(ADCHS_CH9);
 
-                printf("\n\rADC0 Value: %u\n", adc0value);
-                printf("\n\rADC3 Value: %u\n", adc3value);
-                // power = APPS_Function(adc0value, adc3value);
-                // calculate mean value
-                power_mean = (adc0value + adc3value) / 2;
-                power = map(power_mean, 0, 4095, 0, 1000);
+            float newTemperature = MeasureTemperature(adcValue);
 
-                printf("\n\rPower: %u\n", power);
+            // Calculate the mean temperature with the last two values and the new one
+            float meanTemperature = (lastTemperature1 + lastTemperature2 + newTemperature) / 3.0;
+            printf("\n\rMean Temperature = %.f C", roundf(meanTemperature));
 
-                // Send the data over CAN
-                uint32_t id = 0x14;
-                uint8_t length = 2;
-                uint8_t message[8];
-                message[0] = 0x01; // send drive enable signal
-                // send drive enable signal
-                xSemaphoreTake(CAN_Mutex, portMAX_DELAY);
-                {
-                    CanSend(id, length, message);
-                }
-                xSemaphoreGive(CAN_Mutex);
+            // Update the last temperature values
+            lastTemperature1 = lastTemperature2;
+            lastTemperature2 = newTemperature;
 
-                // send the data to the inverter control
-                id = 0x24;
-                length = 6;
-                message[0] = adc0value & 0xFF;
-                message[1] = (adc0value >> 8) & 0xFF;
-                message[2] = adc3value & 0xFF;
-                message[3] = (adc3value >> 8) & 0xFF;
-                message[4] = power & 0xFF;
-                message[5] = (power >> 8) & 0xFF;
-
-                xSemaphoreTake(CAN_Mutex, portMAX_DELAY); {
-                    CanSend(id, length, message);
-                }
-                xSemaphoreGive(CAN_Mutex);
-            }
+            // Start the next conversion
+            ADCHS_ChannelConversionStart(ADCHS_CH9);
 
             break;
         }

@@ -123,8 +123,6 @@ void VOLTAGE_MEASUREMENT_TASK_Initialize ( void )
     vSemaphoreCreateBinary(voltageMeasurementSemaphore); 
     xSemaphoreTake(voltageMeasurementSemaphore, 0); 
 
-
-
     /* TODO: Initialize your application's state machine and other
      * parameters.
      */
@@ -188,7 +186,7 @@ float MeasureVoltage(uint16_t bits) {
     PDM_Voltage = ((float)bits * 3.30 / 4095.000) / 0.1155;
     //24.0 = 0% and 28.0 = 100%
     //LV_SOC = (uint16_t)((PDM_Voltage - 24.0) * 1000 / 4.0);
-    printf("\n\rPDM VALUE = %f",PDM_Voltage);
+    //printf("\n\rPDM VALUE = %f",PDM_Voltage);
     if (PDM_Voltage >= 25) {
         // set pin
         GPIO_RG9_LV_ON_Set();

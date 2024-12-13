@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//#include "utils.h"
+// #include "utils.h"
 
 float APPS_MIN_Volts = 0.0;  // Minimum voltage of the APPS
 uint16_t APPS_MIN_bits = 0;  // Minimum bits of the APPS
@@ -41,11 +41,12 @@ bool APPS_Is10PercentApart(uint16_t apps1, uint16_t apps2);
 bool APPS_CheckError(uint16_t apps1, uint16_t apps2);
 uint16_t APPS_ToPercentage(uint16_t apps_mean);
 uint16_t APPS_ToPercentage_1000(uint16_t apps_mean);
-
-long map(long x, long in_min, long in_max, long out_min, long out_max) {
+/*
+ * long map(long x, long in_min, long in_max, long out_min, long out_max) {
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
+ */
 
 /// @brief Update the APPS values
 /// @param min_volts minimum voltage that the APPS can reach
@@ -124,7 +125,7 @@ bool APPS_Is10PercentApart(uint16_t apps1, uint16_t apps2) {
     // uint16_t total = apps1 + apps2;
     // return (total <= 3686.4 || total >= 4505.6);
 
-    return (apps1 < (apps2 * 0.9)) || (apps1 > (apps2 * 1.1));
+    return (apps1 < (apps2 * 0.8)) || (apps1 > (apps2 * 1.2));
 }
 
 /// @brief identify if there is a short circuit in the APPS to gnd or vcc
@@ -176,7 +177,7 @@ bool APPS_CheckError(uint16_t apps1, uint16_t apps2) {
 
 bool APPS_TimedOut(uint16_t apps1, uint16_t apps2) {
     static unsigned long lastTime = 0;
-    unsigned long currentTime;
+    static unsigned long currentTime = 0;
     uint16_t timeout = 100;  // ms
 
     if (APPS_CheckError(apps1, apps2)) {
@@ -252,8 +253,8 @@ int APPS_Function(uint16_t apps1, uint16_t apps2) {
             APPS_Percentage = 100;
             APPS_Percentage_1000 = 1000;
         } else {
-            APPS_Percentage = map(APPS_Mean, APPS_MIN_bits + APPS_Tolerance_bits, APPS_MAX_bits - APPS_Tolerance_bits, 0, 100);
-            APPS_Percentage_1000 = map(APPS_Mean, APPS_MIN_bits + APPS_Tolerance_bits, APPS_MAX_bits - APPS_Tolerance_bits, 0, 1000);
+            //APPS_Percentage = map(APPS_Mean, APPS_MIN_bits + APPS_Tolerance_bits, APPS_MAX_bits - APPS_Tolerance_bits, 0, 100);
+            //APPS_Percentage_1000 = map(APPS_Mean, APPS_MIN_bits + APPS_Tolerance_bits, APPS_MAX_bits - APPS_Tolerance_bits, 0, 1000);
         }
 
         // limit the percentage

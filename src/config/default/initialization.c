@@ -198,8 +198,6 @@ void SYS_Initialize ( void* data )
 
 
 
-
-
     /* MISRAC 2012 deviation block start */
     /* Following MISRA-C rules deviated in this block  */
     /* MISRA C-2012 Rule 11.3 - Deviation record ID - H3_MISRAC_2012_R_11_3_DR_1 */
@@ -213,10 +211,12 @@ void SYS_Initialize ( void* data )
     APPS_TASK_Initialize();
     VOLTAGE_MEASUREMENT_TASK_Initialize();
     INVERTER_TASK_Initialize();
+    PRINTINGF_Initialize();
     R2D_TASK_Initialize();
     AS_EMERGENCY_TASK_Initialize();
     MAIN_TASK_Initialize();
     CAN_READ_TASK_Initialize();
+    TEMPERATURE_Initialize();
 
 
     EVIC_Initialize();
