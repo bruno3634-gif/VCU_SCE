@@ -213,7 +213,8 @@ void APPS_TASK_Tasks(void) {
 
 
             // Send the structure to the queue
-            xStatus = xQueueSend(Inverter_control_Queue, &adcValues, portMAX_DELAY);
+            //xStatus = xQueueSend(Inverter_control_Queue, &adcValues, portMAX_DELAY);
+            xStatus = xQueueOverwrite(Inverter_control_Queue,&adcValues);
             if (xStatus != pdPASS) {
                 // Handle error: Data was not sent to the queue
             }

@@ -4,6 +4,10 @@
 // Define the queue handle
 QueueHandle_t Inverter_control_Queue = NULL;
 QueueHandle_t AS_Emergency_Queue = NULL;
+QueueHandle_t Bat_Voltage_Queue = NULL;
+QueueHandle_t Temperature_Queue = NULL;
+
+
 
 SemaphoreHandle_t R2D_semaphore = NULL;
 SemaphoreHandle_t CAN_Mutex = NULL;

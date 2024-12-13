@@ -32,7 +32,9 @@
 #include "definitions.h"
 
 #include <math.h>
-
+#include "queue.h"
+#include "semphr.h"
+#include "../SCE_VCU_FreeRTOS.X/queue_manager.h"
 // *****************************************************************************
 // *****************************************************************************
 // Section: Global Data Definitions
@@ -96,7 +98,7 @@ float MeasureTemperature(uint16_t bits) {
 
     // Calculate voltage from ADC bits
     float voltage = (float)bits * V_REF / ADC_MAX;
-
+    
     // Calculate thermistor resistance
     float resistance = SERIES_RESISTOR * (V_REF / voltage - 1.0f);
 
@@ -186,7 +188,8 @@ void TEMPERATURE_Tasks(void) {
             // Calculate the mean temperature with the last two values and the new one
             float meanTemperature = (lastTemperature1 + lastTemperature2 + newTemperature) / 3.0;
             printf("\n\rMean Temperature = %.f C", roundf(meanTemperature));
-
+            //xQueueSend(Temperature_Queue,&meanTemperature,pdMS_TO_TICKS(200));
+            xQueueOverwrite(Temperature_Queue,&meanTemperature);
             // Update the last temperature values
             lastTemperature1 = lastTemperature2;
             lastTemperature2 = newTemperature;

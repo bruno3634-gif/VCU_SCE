@@ -87,7 +87,7 @@ typedef struct {
 
 /* TODO:  Add any necessary local functions.
  */
-bool CanSend(uint32_t id, uint8_t length, uint8_t *buffer) {
+bool CanSend_inverter(uint32_t id, uint8_t length, uint8_t *buffer) {
     return CAN1_MessageTransmit(id, length, buffer, 0, CANFD_MODE_NORMAL, CANFD_MSG_TX_DATA_FRAME);
 }
 
@@ -166,16 +166,16 @@ void INVERTER_TASK_Tasks(void) {
                 printf("\n\rPower: %u\n", power);
 
                 // Send the data over CAN
-                uint32_t id = 0x14;
+                uint32_t id = 0x24;
                 uint8_t length = 2;
                 uint8_t message[8];
                 message[0] = 0x01; // send drive enable signal
                 // send drive enable signal
-                xSemaphoreTake(CAN_Mutex, portMAX_DELAY);
-                {
-                    CanSend(id, length, message);
-                }
-                xSemaphoreGive(CAN_Mutex);
+               // xSemaphoreTake(CAN_Mutex, portMAX_DELAY);
+                //{
+                    CanSend_inverter(id, length, message);
+                //}
+               // xSemaphoreGive(CAN_Mutex);
 
                 // send the data to the inverter control
                 id = 0x24;
@@ -187,10 +187,10 @@ void INVERTER_TASK_Tasks(void) {
                 message[4] = power & 0xFF;
                 message[5] = (power >> 8) & 0xFF;
 
-                xSemaphoreTake(CAN_Mutex, portMAX_DELAY); {
-                    CanSend(id, length, message);
-                }
-                xSemaphoreGive(CAN_Mutex);
+               // xSemaphoreTake(CAN_Mutex, portMAX_DELAY); {
+                    CanSend_inverter(id, length, message);
+                //}
+                //xSemaphoreGive(CAN_Mutex);
             }
 
             break;

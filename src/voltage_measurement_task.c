@@ -30,7 +30,8 @@
 #include "voltage_measurement_task.h"
 #include "definitions.h" 
 #include "toolchain_specifics.h"
-
+#include "queue.h"
+#include "../SCE_VCU_FreeRTOS.X/queue_manager.h"
 // *****************************************************************************
 // *****************************************************************************
 // Section: Global Data Definitions
@@ -215,7 +216,8 @@ float MeasureVoltage(uint16_t bits) {
             }
         }
     }
-
+    //xQueueSend(Bat_Voltage_Queue,&PDM_Voltage,pdMS_TO_TICKS(50));
+    xQueueOverwrite(Bat_Voltage_Queue,&PDM_Voltage);
     return PDM_Voltage;
 }
 

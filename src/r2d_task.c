@@ -59,6 +59,11 @@ unsigned int Time = 0;
 volatile int r2d = 0;
 
 
+uint32_t id = 0x14;
+uint8_t length = 2;
+uint8_t message[8];
+
+
 // *****************************************************************************
 // *****************************************************************************
 // Section: Application Callback Functions
@@ -85,7 +90,9 @@ unsigned int millis1(void) {
     return (unsigned int) (CORETIMER_CounterGet() / (CORE_TIMER_FREQUENCY / 1000));
 }
 
-
+bool CanSend(uint32_t id, uint8_t length, uint8_t *buffer) {
+    return CAN1_MessageTransmit(id, length, buffer, 0, CANFD_MODE_NORMAL, CANFD_MSG_TX_DATA_FRAME);
+}
 
 
 /// @brief Measure the brake pressure from an ADC channel
@@ -161,7 +168,9 @@ void R2D_TASK_Initialize(void) {
     vSemaphoreCreateBinary(R2D_BTN_SEMAPHORE);
     xSemaphoreTake(R2D_BTN_SEMAPHORE, 0);
 
-
+    for(int i = 0; i<8;i++){
+        message[i] = 0x00;
+    }
 
 
     /* TODO: Initialize your application's state machine and other
@@ -179,16 +188,14 @@ void R2D_TASK_Initialize(void) {
 
 void R2D_TASK_Tasks(void) {
     // Send the data over CAN
-    uint32_t id = 0x14;
-    uint8_t length = 2;
-    uint8_t message[8];
-    message[0] = 0x01; // send drive enable signal
+    
+    
     // send drive enable signal
-    xSemaphoreTake(CAN_Mutex, portMAX_DELAY);
+    /*xSemaphoreTake(CAN_Mutex, portMAX_DELAY);
     {
         CanSend(id, length, message);
     }
-    xSemaphoreGive(CAN_Mutex);
+    xSemaphoreGive(CAN_Mutex);*/
 
     /* Check the application's current state. */
     switch (r2d_taskData.state) {
@@ -196,7 +203,7 @@ void R2D_TASK_Tasks(void) {
         case R2D_TASK_STATE_INIT:
         {
             bool appInitialized = true;
-
+            message[0] = 0x00;
 
             if (appInitialized) {
 
@@ -209,6 +216,8 @@ void R2D_TASK_Tasks(void) {
         {
             LED_F1_Clear();
             if (R2D_S_Get() == 1) {
+                message[0] = 0x01;
+                message[1] = 0;
                 GPIO_PinIntEnable(IGNITION_PIN, GPIO_INTERRUPT_ON_RISING_EDGE);
                 ADCHS_ChannelConversionStart(ADCHS_CH15);
 
@@ -223,6 +232,7 @@ void R2D_TASK_Tasks(void) {
             } else {
                 GPIO_PinIntDisable(IGNITION_PIN);
                 r2d_taskData.state = R2D_TASK_STATE_INIT;
+                message[0] = 0;
             }
             break;
         }
@@ -237,10 +247,14 @@ void R2D_TASK_Tasks(void) {
         case R2D_TASK_R2D_STATE:
             GPIO_PinIntDisable(IGNITION_PIN);
             if (R2D_S_Get() == 1) {
+                message[0] = 0x01;
+                message[1] = 1;
                 buzzer_Set();
                 xSemaphoreGive(R2D_semaphore);
 
             } else {
+                message[0] = 0;
+                message[1] = 0;
                 buzzer_Set();
                 r2d_taskData.state = R2D_TASK_STATE_SERVICE_TASKS;
             }
@@ -249,8 +263,10 @@ void R2D_TASK_Tasks(void) {
         {
             /* TODO: Handle error in application's state machine. */
             break;
-        }
+        }  
     }
+    CanSend(id,length,message);
+    
 }
 /*******************************************************************************
  End of File

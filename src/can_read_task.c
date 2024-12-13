@@ -97,7 +97,7 @@ void task_function(){
     uint8_t rx_message[8];
 
 
-
+xSemaphoreTake(CAN_Mutex, portMAX_DELAY);
     if (CAN1_MessageReceive(&can_read_taskData.id, &lenght, rx_message, 0, 2, &msgAttr) == true) {
         //CAN1_MessageTransmit(0x200,lenght,can_read_taskData.rx_message,0, CANFD_MODE_NORMAL, CANFD_MSG_TX_DATA_FRAME);
         switch (can_read_taskData.id) {
@@ -114,9 +114,11 @@ void task_function(){
                 break;
         }
     } else {
-        taskYIELD();
+        //taskYIELD();
     }
+    xSemaphoreGive(CAN_Mutex);
 }
+
 
 
 

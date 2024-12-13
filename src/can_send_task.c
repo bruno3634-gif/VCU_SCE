@@ -32,7 +32,9 @@
 #include "can_send_task.h"
 //#include "peripheral/canfd/plib_canfd1.h"
 #include "definitions.h"
-
+#include "queue.h"
+#include "../SCE_VCU_FreeRTOS.X/queue_manager.h"
+#include "semphr.h"
 // *****************************************************************************
 // *****************************************************************************
 // Section: Global Data Definitions
@@ -56,6 +58,13 @@
 
 CAN_SEND_TASK_DATA can_send_taskData;
 
+static uint8_t message[8];
+float voltage;
+float temp;
+static uint32_t id = 0;
+static uint8_t length = 8;
+
+CANFD_MSG_RX_ATTRIBUTE msgAttr = CANFD_MSG_RX_DATA_FRAME;
 // *****************************************************************************
 // *****************************************************************************
 // Section: Application Callback Functions
@@ -70,11 +79,13 @@ CAN_SEND_TASK_DATA can_send_taskData;
 // Section: Application Local Functions
 // *****************************************************************************
 // *****************************************************************************
-
+bool CanSend_task(uint32_t id, uint8_t length, uint8_t *buffer) {
+    return CAN1_MessageTransmit(id, length, buffer, 0, CANFD_MODE_NORMAL, CANFD_MSG_TX_DATA_FRAME);
+}
 
 /* TODO:  Add any necessary local functions.
 */
-CANFD_MSG_RX_ATTRIBUTE msgAttr = CANFD_MSG_RX_DATA_FRAME;
+
 
 
 // *****************************************************************************
@@ -96,7 +107,9 @@ void CAN_SEND_TASK_Initialize ( void )
     /* Place the App state machine in its initial state. */
     can_send_taskData.state = CAN_SEND_TASK_STATE_INIT;
     
-
+    for(int i = 0; i<8;i++){
+        message[i] = 0;
+    }
 
     /* TODO: Initialize your application's state machine and other
      * parameters.
@@ -137,22 +150,29 @@ void CAN_SEND_TASK_Tasks ( void )
         case CAN_SEND_TASK_STATE_SERVICE_TASKS:
         {
           //  printf("\n\rCAN task\n\r");
-            uint8_t message[64];
+            
       
-            for (int count = 8; count >=1; count--){
-                message[count - 1] = count;
-            }
-            if(CAN1_MessageTransmit(0x69, 8, message, 0, CANFD_MODE_NORMAL, CANFD_MSG_TX_DATA_FRAME)){
-                
-                
-            }else{
-            //    printf("Failed to transmit message");
-            }
+            xQueueReceive(Bat_Voltage_Queue,&voltage,pdMS_TO_TICKS(300));
+            xQueueReceive(Temperature_Queue,&temp,pdMS_TO_TICKS(300));
+            int voltage_int = voltage*10;
+            uint8_t MSB_voltage = (voltage_int >> 8) & 0xF;
+            uint8_t LSB_voltage = (voltage_int << 8) & 0xF;
+            int temp_int = temp*10;
+            uint8_t MSB_temp = (temp_int >> 8) & 0xF;
+            uint8_t LSB_temp = (temp_int << 8) & 0xF;
             LED_RB13_Toggle();
-            message[1]++;
-             CAN1_MessageTransmit(0x9, 8, message, 0, CANFD_MODE_NORMAL, CANFD_MSG_TX_DATA_FRAME);
-             message[3]++;
-             CAN1_MessageTransmit(0x80, 8, message, 0, CANFD_MODE_NORMAL, CANFD_MSG_TX_DATA_FRAME);
+            
+            message[0] = MSB_voltage;
+            message[1] = LSB_voltage;
+            message[2] = MSB_temp;
+            message[3] = LSB_temp;
+            id = 0x54;
+            
+           // xSemaphoreTake(CAN_Mutex, portMAX_DELAY);
+            //{
+                CanSend_task(id, length, message);
+            //}
+            xSemaphoreGive(CAN_Mutex);
             //*** Data to send to can ***//
             //Low Voltage battery
             //Ignition

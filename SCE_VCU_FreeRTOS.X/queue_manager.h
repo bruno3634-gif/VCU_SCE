@@ -23,7 +23,8 @@ typedef struct {
 // Declare the queue handle as extern
 extern QueueHandle_t Inverter_control_Queue;
 extern QueueHandle_t AS_Emergency_Queue;
-
+extern QueueHandle_t Bat_Voltage_Queue;
+extern QueueHandle_t Temperature_Queue;
 
 
 //Declare semaphores

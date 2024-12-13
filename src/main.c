@@ -45,8 +45,10 @@ int main(void) {
     
 
     
-    Inverter_control_Queue = xQueueCreate(10, sizeof ( long));
+    Inverter_control_Queue = xQueueCreate(1, sizeof ( long));
     AS_Emergency_Queue = xQueueCreate(1,sizeof(CANMessage));
+    Bat_Voltage_Queue = xQueueCreate(1,sizeof(float));
+    Temperature_Queue = xQueueCreate(1,sizeof(float));
     
     CAN_Mutex = xSemaphoreCreateMutex();
     vSemaphoreCreateBinary(R2D_semaphore);

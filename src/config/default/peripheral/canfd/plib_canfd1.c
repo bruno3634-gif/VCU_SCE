@@ -59,7 +59,7 @@
 // *****************************************************************************
 // *****************************************************************************
 /* CAN1 Message memory size */
-#define CANFD_MESSAGE_RAM_CONFIG_SIZE 7168
+#define CANFD_MESSAGE_RAM_CONFIG_SIZE 4688
 /* Number of configured FIFO */
 #define CANFD_NUM_OF_FIFO             2U
 /* Maximum number of CAN Message buffers in each FIFO */
@@ -179,26 +179,26 @@ void CAN1_Initialize(void)
     }
 
     /* Set the Data bitrate to 1000 Kbps */
-    CFD1DBTCFG = ((14UL << _CFD1DBTCFG_BRP_POSITION) & _CFD1DBTCFG_BRP_MASK)
-               | ((4UL << _CFD1DBTCFG_TSEG1_POSITION) & _CFD1DBTCFG_TSEG1_MASK)
-               | ((1UL << _CFD1DBTCFG_TSEG2_POSITION) & _CFD1DBTCFG_TSEG2_MASK)
-               | ((1UL << _CFD1DBTCFG_SJW_POSITION) & _CFD1DBTCFG_SJW_MASK);
+    CFD1DBTCFG = ((2UL << _CFD1DBTCFG_BRP_POSITION) & _CFD1DBTCFG_BRP_MASK)
+               | ((28UL << _CFD1DBTCFG_TSEG1_POSITION) & _CFD1DBTCFG_TSEG1_MASK)
+               | ((9UL << _CFD1DBTCFG_TSEG2_POSITION) & _CFD1DBTCFG_TSEG2_MASK)
+               | ((9UL << _CFD1DBTCFG_SJW_POSITION) & _CFD1DBTCFG_SJW_MASK);
 
     /* Set the Nominal bitrate to 1000 Kbps */
-    CFD1NBTCFG = ((14UL << _CFD1NBTCFG_BRP_POSITION) & _CFD1NBTCFG_BRP_MASK)
-               | ((4UL << _CFD1NBTCFG_TSEG1_POSITION) & _CFD1NBTCFG_TSEG1_MASK)
-               | ((1UL << _CFD1NBTCFG_TSEG2_POSITION) & _CFD1NBTCFG_TSEG2_MASK)
-               | ((1UL << _CFD1NBTCFG_SJW_POSITION) & _CFD1NBTCFG_SJW_MASK);
+    CFD1NBTCFG = ((0UL << _CFD1NBTCFG_BRP_POSITION) & _CFD1NBTCFG_BRP_MASK)
+               | ((88UL << _CFD1NBTCFG_TSEG1_POSITION) & _CFD1NBTCFG_TSEG1_MASK)
+               | ((29UL << _CFD1NBTCFG_TSEG2_POSITION) & _CFD1NBTCFG_TSEG2_MASK)
+               | ((29UL << _CFD1NBTCFG_SJW_POSITION) & _CFD1NBTCFG_SJW_MASK);
 
     /* Set Message memory base address for all FIFOs/Queue */
     CFD1FIFOBA = (uint32_t)KVA_TO_PA(can_message_buffer);
 
     /* Tx Event FIFO Configuration */
-    CFD1TEFCON = (((32UL - 1UL) << _CFD1TEFCON_FSIZE_POSITION) & _CFD1TEFCON_FSIZE_MASK);
+    CFD1TEFCON = (((1UL - 1UL) << _CFD1TEFCON_FSIZE_POSITION) & _CFD1TEFCON_FSIZE_MASK);
     CFD1CON |= _CFD1CON_STEF_MASK;
 
     /* Tx Queue Configuration */
-    CFD1TXQCON = (((32UL - 1UL) << _CFD1TXQCON_FSIZE_POSITION) & _CFD1TXQCON_FSIZE_MASK)
+    CFD1TXQCON = (((1UL - 1UL) << _CFD1TXQCON_FSIZE_POSITION) & _CFD1TXQCON_FSIZE_MASK)
                | ((0x7UL << _CFD1TXQCON_PLSIZE_POSITION) & _CFD1TXQCON_PLSIZE_MASK)
                | ((0x0UL << _CFD1TXQCON_TXPRI_POSITION) & _CFD1TXQCON_TXPRI_MASK);
     CFD1CON |= _CFD1CON_TXQEN_MASK;
