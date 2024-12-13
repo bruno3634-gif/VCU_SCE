@@ -28,10 +28,11 @@
 // *****************************************************************************
 
 #include "r2d_task.h"
+
+#include "../SCE_VCU_FreeRTOS.X/queue_manager.h"
 #include "definitions.h"
 #include "peripheral/adchs/plib_adchs_common.h"
 #include "semphr.h"
-#include "../SCE_VCU_FreeRTOS.X/queue_manager.h"
 // *****************************************************************************
 // *****************************************************************************
 // Section: Global Data Definitions
@@ -58,11 +59,9 @@ R2D_TASK_DATA r2d_taskData;
 unsigned int Time = 0;
 volatile int r2d = 0;
 
-
 uint32_t id = 0x14;
 uint8_t length = 2;
 uint8_t message[8];
-
 
 // *****************************************************************************
 // *****************************************************************************
@@ -79,7 +78,6 @@ uint8_t message[8];
 // *****************************************************************************
 // *****************************************************************************
 
-
 /* TODO:  Add any necessary local functions.
  */
 
@@ -87,13 +85,12 @@ xSemaphoreHandle ADC15_BP_SEMAPHORE;
 xSemaphoreHandle R2D_BTN_SEMAPHORE;
 
 unsigned int millis1(void) {
-    return (unsigned int) (CORETIMER_CounterGet() / (CORE_TIMER_FREQUENCY / 1000));
+    return (unsigned int)(CORETIMER_CounterGet() / (CORE_TIMER_FREQUENCY / 1000));
 }
 
 bool CanSend(uint32_t id, uint8_t length, uint8_t *buffer) {
     return CAN1_MessageTransmit(id, length, buffer, 0, CANFD_MODE_NORMAL, CANFD_MSG_TX_DATA_FRAME);
 }
-
 
 /// @brief Measure the brake pressure from an ADC channel
 /// @param bits ADC channel to measure the brake pressure
@@ -103,8 +100,8 @@ float MeasureBrakePressure(uint16_t bits) {
     /*(28.57mV/bar  + 500mv)*/
     float volts = 0;
     float pressure = 0;
-    volts = (float) bits * 3.300 / 4095.000;
-    volts = volts / 0.667; // conversion from 3.3V to 5V
+    volts = (float)bits * 3.300 / 4095.000;
+    volts = volts / 0.667;  // conversion from 3.3V to 5V
 
     pressure = (volts - 0.5) / 0.02857;
 
@@ -116,7 +113,6 @@ void ADCHS_CH15_Callback(ADCHS_CHANNEL_NUM channel, uintptr_t context) {
     xHigherPriorityTaskWoken = pdFALSE;
 
     ADCHS_ChannelResultGet(ADCHS_CH15);
-
 
     xSemaphoreGiveFromISR(ADC15_BP_SEMAPHORE, &xHigherPriorityTaskWoken);
 
@@ -130,14 +126,13 @@ void r2d_int(GPIO_PIN pin, uintptr_t context) {
     static BaseType_t xHigherPriorityTaskWoken;
     xHigherPriorityTaskWoken = pdFALSE;
 
-    //LED_F1_Toggle(); 
+    // LED_F1_Toggle();
     xSemaphoreGiveFromISR(R2D_BTN_SEMAPHORE, &xHigherPriorityTaskWoken);
 
     if (xHigherPriorityTaskWoken == pdTRUE) {
         portYIELD();
     }
 }
-
 
 // *****************************************************************************
 // *****************************************************************************
@@ -160,7 +155,7 @@ void R2D_TASK_Initialize(void) {
     GPIO_PinInterruptCallbackRegister(IGNITION_PIN, r2d_int, 0);
     GPIO_PinIntDisable(IGNITION_PIN);
     LED_F1_Set();
-    ADCHS_CallbackRegister(ADCHS_CH15, ADCHS_CH15_Callback, (uintptr_t) NULL); // Voltage Measurement 
+    ADCHS_CallbackRegister(ADCHS_CH15, ADCHS_CH15_Callback, (uintptr_t)NULL);  // Voltage Measurement
     ADCHS_ChannelResultInterruptEnable(ADCHS_CH15);
     ADCHS_ChannelConversionStart(ADCHS_CH15);
     vSemaphoreCreateBinary(ADC15_BP_SEMAPHORE);
@@ -168,10 +163,9 @@ void R2D_TASK_Initialize(void) {
     vSemaphoreCreateBinary(R2D_BTN_SEMAPHORE);
     xSemaphoreTake(R2D_BTN_SEMAPHORE, 0);
 
-    for(int i = 0; i<8;i++){
+    for (int i = 0; i < 8; i++) {
         message[i] = 0x00;
     }
-
 
     /* TODO: Initialize your application's state machine and other
      * parameters.
@@ -188,8 +182,7 @@ void R2D_TASK_Initialize(void) {
 
 void R2D_TASK_Tasks(void) {
     // Send the data over CAN
-    
-    
+
     // send drive enable signal
     /*xSemaphoreTake(CAN_Mutex, portMAX_DELAY);
     {
@@ -200,20 +193,17 @@ void R2D_TASK_Tasks(void) {
     /* Check the application's current state. */
     switch (r2d_taskData.state) {
             /* Application's initial state. */
-        case R2D_TASK_STATE_INIT:
-        {
+        case R2D_TASK_STATE_INIT: {
             bool appInitialized = true;
             message[0] = 0x00;
 
             if (appInitialized) {
-
                 r2d_taskData.state = R2D_TASK_STATE_SERVICE_TASKS;
             }
             break;
         }
 
-        case R2D_TASK_STATE_SERVICE_TASKS:
-        {
+        case R2D_TASK_STATE_SERVICE_TASKS: {
             LED_F1_Clear();
             if (R2D_S_Get() == 1) {
                 message[0] = 0x01;
@@ -259,15 +249,13 @@ void R2D_TASK_Tasks(void) {
                 r2d_taskData.state = R2D_TASK_STATE_SERVICE_TASKS;
             }
             break;
-        default:
-        {
+        default: {
             /* TODO: Handle error in application's state machine. */
             break;
-        }  
+        }
     }
-    CanSend(id,length,message);
-    
+    CanSend(id, length, message);
 }
 /*******************************************************************************
  End of File
- */
+ */ 
