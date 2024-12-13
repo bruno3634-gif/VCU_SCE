@@ -145,7 +145,7 @@ void INVERTER_TASK_Tasks(void) {
             static BaseType_t xStatus;
             xSemaphoreTake(R2D_semaphore, portMAX_DELAY);
             // Wait to receive data from the queue
-            xStatus = xQueueReceive(Inverter_control_Queue, &receivedValues, portMAX_DELAY);
+            xStatus = xQueueReceive(Inverter_control_Queue, &receivedValues, pdMS_TO_TICKS(20));
             if (xStatus == pdPASS) {
                 static int power = 0;
                 static int power_mean = 0;
@@ -167,19 +167,12 @@ void INVERTER_TASK_Tasks(void) {
 
                 // Send the data over CAN
                 uint32_t id = 0x24;
-                uint8_t length = 2;
+                uint8_t length = 6;
                 uint8_t message[8];
-                message[0] = 0x01; // send drive enable signal
-                // send drive enable signal
-               // xSemaphoreTake(CAN_Mutex, portMAX_DELAY);
-                //{
-                    CanSend_inverter(id, length, message);
-                //}
-               // xSemaphoreGive(CAN_Mutex);
 
                 // send the data to the inverter control
-                id = 0x24;
-                length = 6;
+                //id = 0x24;
+                //length = 6;
                 message[0] = adc0value & 0xFF;
                 message[1] = (adc0value >> 8) & 0xFF;
                 message[2] = adc3value & 0xFF;
@@ -187,7 +180,8 @@ void INVERTER_TASK_Tasks(void) {
                 message[4] = power & 0xFF;
                 message[5] = (power >> 8) & 0xFF;
 
-               // xSemaphoreTake(CAN_Mutex, portMAX_DELAY); {
+                //xSemaphoreTake(CAN_Mutex, portMAX_DELAY);
+                //{
                     CanSend_inverter(id, length, message);
                 //}
                 //xSemaphoreGive(CAN_Mutex);

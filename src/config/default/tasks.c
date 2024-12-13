@@ -244,7 +244,7 @@ void SYS_Tasks ( void )
                 "R2D_TASK_Tasks",
                 1024,
                 NULL,
-                3,
+                4,
                 &xR2D_TASK_Tasks);
 
     /* Create OS Thread for AS_EMERGENCY_TASK_Tasks. */

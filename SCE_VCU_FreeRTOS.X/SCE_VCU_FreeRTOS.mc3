@@ -3155,7 +3155,7 @@
          <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;HarmonyCore&gt;
   &lt;HarmonyCore dnOrder=&quot;0&quot; id=&quot;GEN_APP_RTOS_TASK_6_PRIO&quot;&gt;
     &lt;Values dnOrder=&quot;0&quot;&gt;
-      &lt;User dnOrder=&quot;0&quot; value=&quot;3&quot;/&gt;
+      &lt;User dnOrder=&quot;0&quot; value=&quot;4&quot;/&gt;
     &lt;/Values&gt;
   &lt;/HarmonyCore&gt;
 &lt;/HarmonyCore&gt;
@@ -17816,7 +17816,7 @@
       </entry>
       <entry>
          <file>../src/config/default/tasks.c</file>
-         <hash>3b9863899ed79a1a4e758bf532762023d66ff36836f1725afb692a1e332a3be2</hash>
+         <hash>ae47060154a796f4cee2f0c79fb2444f27115d6e7a5805a3d1aae70a9abd5077</hash>
       </entry>
       <entry>
          <file>../src/config/default/toolchain_specifics.h</file>

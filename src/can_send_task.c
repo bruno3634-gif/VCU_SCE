@@ -151,9 +151,12 @@ void CAN_SEND_TASK_Tasks ( void )
         {
           //  printf("\n\rCAN task\n\r");
             
-      
+            
             xQueueReceive(Bat_Voltage_Queue,&voltage,pdMS_TO_TICKS(300));
-            xQueueReceive(Temperature_Queue,&temp,pdMS_TO_TICKS(300));
+            xQueueReceive(Temperature_Queue,&temp,portMAX_DELAY);
+            temp = 17;
+            //voltage = 240;
+            printf("\n\n\n\r Queue temp : %f \r\n\n\n\r",temp);
             int voltage_int = voltage*10;
             uint8_t MSB_voltage = (voltage_int >> 8) & 0xF;
             uint8_t LSB_voltage = (voltage_int << 8) & 0xF;
@@ -161,7 +164,7 @@ void CAN_SEND_TASK_Tasks ( void )
             uint8_t MSB_temp = (temp_int >> 8) & 0xF;
             uint8_t LSB_temp = (temp_int << 8) & 0xF;
             LED_RB13_Toggle();
-            
+            printf("\n\n\rMSD : %d  \tLSB: %d\n\n\n\\r",MSB_temp,LSB_temp);
             message[0] = MSB_voltage;
             message[1] = LSB_voltage;
             message[2] = MSB_temp;
@@ -172,10 +175,11 @@ void CAN_SEND_TASK_Tasks ( void )
             //{
                 CanSend_task(id, length, message);
             //}
-            xSemaphoreGive(CAN_Mutex);
+           // xSemaphoreGive(CAN_Mutex);
             //*** Data to send to can ***//
             //Low Voltage battery
-            //Ignition
+            //Ignition            uint8_t LSB_temp = (temp_int << 8) & 0xF;
+
             //VCU state
             //Temperatures
             //Fan control

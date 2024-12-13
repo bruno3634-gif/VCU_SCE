@@ -188,8 +188,8 @@ void TEMPERATURE_Tasks(void) {
             // Calculate the mean temperature with the last two values and the new one
             float meanTemperature = (lastTemperature1 + lastTemperature2 + newTemperature) / 3.0;
             printf("\n\rMean Temperature = %.f C", roundf(meanTemperature));
-            //xQueueSend(Temperature_Queue,&meanTemperature,pdMS_TO_TICKS(200));
-            xQueueOverwrite(Temperature_Queue,&meanTemperature);
+            xQueueSend(Temperature_Queue,&meanTemperature,portMAX_DELAY);
+            //xQueueOverwrite(Temperature_Queue,&meanTemperature);
             // Update the last temperature values
             lastTemperature1 = lastTemperature2;
             lastTemperature2 = newTemperature;
