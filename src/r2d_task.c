@@ -60,8 +60,9 @@ unsigned int Time = 0;
 volatile int r2d = 0;
 
 uint32_t id = 0x14;
-uint8_t length = 2;
+uint8_t length = 8;
 uint8_t message[8];
+float bp = 0;
 
 // *****************************************************************************
 // *****************************************************************************
@@ -240,8 +241,7 @@ void R2D_TASK_Tasks(void) {
                 message[1] = 0x01;
                 message[0] = 1;
                 buzzer_Set();
-                xSemaphoreGive(R2D_semaphore);
-
+                xSemaphoreGive(R2D_semaphore);              
             } else {
                 message[1] = 0;
                 message[0] = 0;
@@ -254,7 +254,14 @@ void R2D_TASK_Tasks(void) {
             break;
         }
     }
-    CanSend(id, length, message);
+    ADCHS_ChannelConversionStart(ADCHS_CH15);
+    xSemaphoreTake(ADC15_BP_SEMAPHORE, portMAX_DELAY);
+    bp = MeasureBrakePressure(ADCHS_ChannelResultGet(ADCHS_CH15));
+    int pressure = bp*10;
+    message[2] = (pressure >> 8) & 0xFF; // High byte
+    message[3] = pressure & 0xFF;
+    CanSend(id,length,message);
+    
 }
 /*******************************************************************************
  End of File
