@@ -232,7 +232,7 @@ void R2D_TASK_Tasks(void) {
             } else {
                 GPIO_PinIntDisable(IGNITION_PIN);
                 r2d_taskData.state = R2D_TASK_STATE_INIT;
-                message[0] = 0;
+                message[1] = 0;
             }
             break;
         }
@@ -247,14 +247,14 @@ void R2D_TASK_Tasks(void) {
         case R2D_TASK_R2D_STATE:
             GPIO_PinIntDisable(IGNITION_PIN);
             if (R2D_S_Get() == 1) {
-                message[0] = 0x01;
-                message[1] = 1;
+                message[1] = 0x01;
+                message[0] = 1;
                 buzzer_Set();
                 xSemaphoreGive(R2D_semaphore);
 
             } else {
-                message[0] = 0;
                 message[1] = 0;
+                message[0] = 0;
                 buzzer_Set();
                 r2d_taskData.state = R2D_TASK_STATE_SERVICE_TASKS;
             }

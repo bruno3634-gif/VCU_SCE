@@ -140,7 +140,6 @@ void CAN_SEND_TASK_Tasks(void) {
 
             xQueueReceive(Bat_Voltage_Queue, &voltage, pdMS_TO_TICKS(300));
             xQueueReceive(Temperature_Queue, &temp, portMAX_DELAY);
-            temp = 17;
             // voltage = 240;
             printf("\n\n\n\r Queue temp : %f \r\n\n\n\r", temp);
             int voltage_int = voltage * 10;
@@ -148,11 +147,11 @@ void CAN_SEND_TASK_Tasks(void) {
             int temp_int = temp * 10;
 
             LED_RB13_Toggle();
-            printf("\n\n\rMSD : %d  \tLSB: %d\n\n\n\\r", MSB_temp, LSB_temp);
-            message[0] = voltage_int & 0xFF;
-            message[1] = (voltage_int >> 8) & 0xFF;
-            message[2] = temp_int & 0xFF;
-            message[3] = (temp_int >> 8) & 0xFF;
+            //printf("\n\n\rMSD : %d  \tLSB: %d\n\n\n\\r", MSB_temp, LSB_temp);
+            message[0] = (voltage_int >> 8) & 0xFF;
+            message[1] = voltage_int & 0xFF;
+            message[2] = (temp_int >> 8) & 0xFF;
+            message[3] = temp_int & 0xFF;
             id = 0x54;
 
             // xSemaphoreTake(CAN_Mutex, portMAX_DELAY);
