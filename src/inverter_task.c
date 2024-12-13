@@ -167,7 +167,7 @@ void INVERTER_TASK_Tasks(void) {
 
                 // Send the data over CAN
                 uint32_t id = 0x14;
-                uint8_t length = 1;
+                uint8_t length = 2;
                 uint8_t message[8];
                 message[0] = 0x01; // send drive enable signal
                 // send drive enable signal

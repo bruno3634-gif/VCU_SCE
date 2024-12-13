@@ -178,6 +178,17 @@ void R2D_TASK_Initialize(void) {
  */
 
 void R2D_TASK_Tasks(void) {
+    // Send the data over CAN
+    uint32_t id = 0x14;
+    uint8_t length = 2;
+    uint8_t message[8];
+    message[0] = 0x01; // send drive enable signal
+    // send drive enable signal
+    xSemaphoreTake(CAN_Mutex, portMAX_DELAY);
+    {
+        CanSend(id, length, message);
+    }
+    xSemaphoreGive(CAN_Mutex);
 
     /* Check the application's current state. */
     switch (r2d_taskData.state) {
