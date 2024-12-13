@@ -8,220 +8,137 @@
     voltage_measurement_task.c
 
   Summary:
-    This file contains the source code for the MPLAB Harmony application.
+    Source code for the MPLAB Harmony application.
 
   Description:
-    This file contains the source code for the MPLAB Harmony application.  It
-    implements the logic of the application's state machine and it may call
-    API routines of other MPLAB Harmony modules in the system, such as drivers,
-    system services, and middleware.  However, it does not call any of the
-    system interfaces (such as the "Initialize" and "Tasks" functions) of any of
-    the modules in the system or make any assumptions about when those functions
-    are called.  That is the responsibility of the configuration-specific system
-    files.
+    Implements the logic of the application's state machine and calls API routines
+    of other MPLAB Harmony modules. It does not call system interfaces (e.g.,
+    "Initialize" and "Tasks" functions) or make assumptions about their calls.
  *******************************************************************************/
 
 // *****************************************************************************
-// *****************************************************************************
 // Section: Included Files
-// *****************************************************************************
 // *****************************************************************************
 
 #include "voltage_measurement_task.h"
-#include "definitions.h" 
-#include "toolchain_specifics.h"
-#include "queue.h"
+
 #include "../SCE_VCU_FreeRTOS.X/queue_manager.h"
-// *****************************************************************************
+#include "definitions.h"
+#include "queue.h"
+#include "toolchain_specifics.h"
+
 // *****************************************************************************
 // Section: Global Data Definitions
 // *****************************************************************************
-// *****************************************************************************
-
-// *****************************************************************************
-/* Application Data
-
-  Summary:
-    Holds application data
-
-  Description:
-    This structure holds the application's data.
-
-  Remarks:
-    This structure should be initialized by the VOLTAGE_MEASUREMENT_TASK_Initialize function.
-
-    Application strings and buffers are be defined outside this structure.
-*/
 
 VOLTAGE_MEASUREMENT_TASK_DATA voltage_measurement_taskData;
 
- 
-xSemaphoreHandle voltageMeasurementSemaphore; 
- 
-__COHERENT uint16_t voltageMeasurementValue; 
+xSemaphoreHandle voltageMeasurementSemaphore;
 
-float MeasureVoltage(uint16_t);
+__COHERENT uint16_t voltageMeasurementValue;
 
-// *****************************************************************************
-// *****************************************************************************
-// Section: Application Callback Functions
-// *****************************************************************************
-// *****************************************************************************
-
-/* TODO:  Add any necessary callback functions.
- * 
-*/
-
-
-void ADCHS_CH8_Callback(ADCHS_CHANNEL_NUM channel, uintptr_t context) { 
-    static BaseType_t xHigherPriorityTaskWoken; 
- 
-    xHigherPriorityTaskWoken = pdFALSE; 
-    ADCHS_ChannelResultGet(ADCHS_CH8); 
-    xSemaphoreGiveFromISR(voltageMeasurementSemaphore, &xHigherPriorityTaskWoken); 
-    if (xHigherPriorityTaskWoken == pdTRUE) { 
-        portYIELD(); 
-    } 
-} 
+// Function prototype
+float MeasureVoltage(uint16_t bits);
 
 // *****************************************************************************
-// *****************************************************************************
-// Section: Application Local Functions
-// *****************************************************************************
+// Section: Callback Functions
 // *****************************************************************************
 
+void ADCHS_CH8_Callback(ADCHS_CHANNEL_NUM channel, uintptr_t context) {
+    static BaseType_t xHigherPriorityTaskWoken;
+    xHigherPriorityTaskWoken = pdFALSE;
 
-// TODO:  Add any necessary local functions.
-unsigned int millis(void);
+    ADCHS_ChannelResultGet(ADCHS_CH8);
+    xSemaphoreGiveFromISR(voltageMeasurementSemaphore, &xHigherPriorityTaskWoken);
 
-unsigned int millis(void){
-  return (unsigned int)(CORETIMER_CounterGet() / (CORE_TIMER_FREQUENCY / 1000));
+    if (xHigherPriorityTaskWoken == pdTRUE) {
+        portYIELD();
+    }
 }
 
 // *****************************************************************************
+// Section: Utility Functions
+// *****************************************************************************
+
+unsigned int millis(void) {
+    return (unsigned int)(CORETIMER_CounterGet() / (CORE_TIMER_FREQUENCY / 1000));
+}
+
 // *****************************************************************************
 // Section: Application Initialization and State Machine Functions
 // *****************************************************************************
-// *****************************************************************************
 
-/*******************************************************************************
-  Function:
-    void VOLTAGE_MEASUREMENT_TASK_Initialize ( void )
-
-  Remarks:
-    See prototype in voltage_measurement_task.h.
- */
-
-void VOLTAGE_MEASUREMENT_TASK_Initialize ( void )
-{
-    /* Place the App state machine in its initial state. */
+void VOLTAGE_MEASUREMENT_TASK_Initialize(void) {
+    // Initialize state machine
     voltage_measurement_taskData.state = VOLTAGE_MEASUREMENT_TASK_STATE_INIT;
-    
-    ADCHS_CallbackRegister(ADCHS_CH8, ADCHS_CH8_Callback, (uintptr_t)NULL);  // Voltage Measurement 
-    ADCHS_ChannelResultInterruptEnable(ADCHS_CH8); 
-    ADCHS_ChannelConversionStart(ADCHS_CH8); 
- 
-    vSemaphoreCreateBinary(voltageMeasurementSemaphore); 
-    xSemaphoreTake(voltageMeasurementSemaphore, 0); 
 
-    /* TODO: Initialize your application's state machine and other
-     * parameters.
-     */
+    // Register ADC callback and enable interrupts
+    ADCHS_CallbackRegister(ADCHS_CH8, ADCHS_CH8_Callback, (uintptr_t)NULL);
+    ADCHS_ChannelResultInterruptEnable(ADCHS_CH8);
+    ADCHS_ChannelConversionStart(ADCHS_CH8);
+
+    // Create and take semaphore
+    vSemaphoreCreateBinary(voltageMeasurementSemaphore);
+    xSemaphoreTake(voltageMeasurementSemaphore, 0);
 }
 
-
-/******************************************************************************
-  Function:
-    void VOLTAGE_MEASUREMENT_TASK_Tasks ( void )
-
-  Remarks:
-    See prototype in voltage_measurement_task.h.
- */
-
-void VOLTAGE_MEASUREMENT_TASK_Tasks ( void )
-{
-
-    /* Check the application's current state. */
-    switch ( voltage_measurement_taskData.state )
-    {
-        /* Application's initial state. */
-        case VOLTAGE_MEASUREMENT_TASK_STATE_INIT:
-        {
-            bool appInitialized = true;
-
-
-            if (appInitialized)
-            {
+void VOLTAGE_MEASUREMENT_TASK_Tasks(void) {
+    switch (voltage_measurement_taskData.state) {
+        case VOLTAGE_MEASUREMENT_TASK_STATE_INIT: {
+            if (true) {  // Initialization complete
                 ADCHS_ChannelConversionStart(ADCHS_CH8);
-
                 voltage_measurement_taskData.state = VOLTAGE_MEASUREMENT_TASK_STATE_SERVICE_TASKS;
             }
             break;
         }
 
-        case VOLTAGE_MEASUREMENT_TASK_STATE_SERVICE_TASKS:
-        {
-            xSemaphoreTake(voltageMeasurementSemaphore, portMAX_DELAY); 
-            voltageMeasurementValue = MeasureVoltage(ADCHS_ChannelResultGet(ADCHS_CH8)); 
+        case VOLTAGE_MEASUREMENT_TASK_STATE_SERVICE_TASKS: {
+            xSemaphoreTake(voltageMeasurementSemaphore, portMAX_DELAY);
+
+            voltageMeasurementValue = MeasureVoltage(ADCHS_ChannelResultGet(ADCHS_CH8));
             ADCHS_ChannelConversionStart(ADCHS_CH8);
             break;
         }
 
-        /* TODO: implement your application state machine.*/
-
-
-        /* The default state should never be executed. */
-        default:
-        {
-            /* TODO: Handle error in application's state machine. */
+        default: {
+            // Handle unexpected states
             break;
         }
     }
 }
 
-/// @brief Measure the voltage from a ADC channel
-/// @param channel  ADC channel to measure the voltage
 float MeasureVoltage(uint16_t bits) {
-    float PDM_Voltage;
-//    float LV_SOC;
-    PDM_Voltage = ((float)bits * 3.30 / 4095.000) / 0.1155;
-    //24.0 = 0% and 28.0 = 100%
-    //LV_SOC = (uint16_t)((PDM_Voltage - 24.0) * 1000 / 4.0);
-    //printf("\n\rPDM VALUE = %f",PDM_Voltage);
-    if (PDM_Voltage >= 25) {
-        // set pin
+    const float SCALE_FACTOR = 0.1155f;
+    const float ADC_MAX = 4095.0f;
+    const float V_REF = 3.3f;
+
+    float PDM_Voltage = ((float)bits * V_REF / ADC_MAX) / SCALE_FACTOR;
+
+    if (PDM_Voltage >= 25.0f) {
         GPIO_RG9_LV_ON_Set();
-    } else if (PDM_Voltage < 25) {
+    } else if (PDM_Voltage < 25.0f) {
         static uint16_t previousMillis = 0;
-        uint16_t currentMillis = 0;
-        uint16_t interval = 0;
+        uint16_t currentMillis = millis();
+        uint16_t interval = currentMillis - previousMillis;
 
-        currentMillis = millis();
-        interval = currentMillis - previousMillis;
-
-        if (PDM_Voltage < 25 && PDM_Voltage >= 24) {
-            if (interval >= 500) {
-                GPIO_RG9_LV_ON_Toggle();
-                previousMillis = currentMillis;
-            }
-        } else if (PDM_Voltage < 24 && PDM_Voltage >= 23) {
-            if (interval >= 100) {
-                GPIO_RG9_LV_ON_Toggle();
-                previousMillis = currentMillis;
-            }
-        } else if (PDM_Voltage < 23) {
-            if (interval >= 0) {
-                GPIO_RG9_LV_ON_Toggle();
-                previousMillis = currentMillis;
-            }
+        if (PDM_Voltage < 25.0f && PDM_Voltage >= 24.0f && interval >= 500) {
+            GPIO_RG9_LV_ON_Toggle();
+            previousMillis = currentMillis;
+        } else if (PDM_Voltage < 24.0f && PDM_Voltage >= 23.0f && interval >= 100) {
+            GPIO_RG9_LV_ON_Toggle();
+            previousMillis = currentMillis;
+        } else if (PDM_Voltage < 23.0f && interval >= 0) {
+            GPIO_RG9_LV_ON_Toggle();
+            previousMillis = currentMillis;
         }
     }
-    //xQueueSend(Bat_Voltage_Queue,&PDM_Voltage,pdMS_TO_TICKS(50));
-    xQueueOverwrite(Bat_Voltage_Queue,&PDM_Voltage);
+
+    // Send voltage to the queue
+    xQueueOverwrite(Bat_Voltage_Queue, &PDM_Voltage);
+
     return PDM_Voltage;
 }
 
-
 /*******************************************************************************
  End of File
- */
+ ******************************************************************************/
