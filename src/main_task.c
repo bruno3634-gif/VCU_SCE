@@ -93,7 +93,7 @@ void MAIN_TASK_Initialize ( void )
 {
     /* Place the App state machine in its initial state. */
     main_taskData.state = MAIN_TASK_STATE_INIT;
-
+    WDT_Enable();
 
 
     /* TODO: Initialize your application's state machine and other
@@ -133,10 +133,12 @@ void MAIN_TASK_Tasks ( void )
         case MAIN_TASK_STATE_SERVICE_TASKS:
         {
             GPIO_RC11_Toggle();
+            WDT_Clear();
+            
            // printf("\r\n ola led");
 
             //printf("\n\rMain\n\r");
-
+            
             break;
         }
 
