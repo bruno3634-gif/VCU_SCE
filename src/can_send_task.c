@@ -1,30 +1,5 @@
-/*******************************************************************************
-  MPLAB Harmony Application Source File
-
-  Company:
-    Microchip Technology Inc.
-
-  File Name:
-    can_send_task.c
-
-  Summary:
-    Contains source code for the MPLAB Harmony application.
-
-  Description:
-    Implements the logic of the application's state machine and may call API
-    routines of other MPLAB Harmony modules. This file does not call system
-    interfaces (e.g., "Initialize" and "Tasks" functions) or make assumptions
-    about when those functions are called.
- *******************************************************************************/
-
-// *****************************************************************************
-// Section: Included Files
-// *****************************************************************************
-
 #include "can_send_task.h"
-
 #include <stdio.h>
-
 #include "../SCE_VCU_FreeRTOS.X/queue_manager.h"
 #include "definitions.h"
 #include "queue.h"
@@ -59,7 +34,7 @@ void CAN_SEND_TASK_Initialize(void) {
     can_send_taskData.state = CAN_SEND_TASK_STATE_INIT;
 
     // Clear message buffer
-    memset(message, 0, sizeof(message));
+    memset(message, 0, sizeof (message));
 
     // Initialize CAN module
     CAN1_Initialize();
@@ -67,28 +42,32 @@ void CAN_SEND_TASK_Initialize(void) {
 
 void CAN_SEND_TASK_Tasks(void) {
     switch (can_send_taskData.state) {
-        case CAN_SEND_TASK_STATE_INIT: {
+        case CAN_SEND_TASK_STATE_INIT:
+        {
+            // Initialize the application state
             bool appInitialized = true;
 
+            // If initialization is successful, transition to service tasks state
             if (appInitialized) {
                 can_send_taskData.state = CAN_SEND_TASK_STATE_SERVICE_TASKS;
             }
             break;
         }
 
-        case CAN_SEND_TASK_STATE_SERVICE_TASKS: {
-            // Receive data from queues
+        case CAN_SEND_TASK_STATE_SERVICE_TASKS:
+        {
+            // Receive data from the battery voltage queue with a timeout of 300 ms
             if (xQueueReceive(Bat_Voltage_Queue, &voltage, pdMS_TO_TICKS(300)) == pdPASS &&
-                xQueueReceive(Temperature_Queue, &temp, portMAX_DELAY) == pdPASS) {
-
+                    // Receive data from the temperature queue indefinitely
+                    xQueueReceive(Temperature_Queue, &temp, portMAX_DELAY) == pdPASS) {
                 // Convert voltage and temperature to integer representation
-                int voltage_int = (int)(voltage * 10);
-                int temp_int = (int)(temp * 10);
+                int voltage_int = (int) (voltage * 10);
+                int temp_int = (int) (temp * 10);
 
-                // Toggle LED
+                // Toggle LED to indicate activity
                 LED_RB13_Toggle();
 
-                // Prepare CAN message
+                // Prepare CAN message with voltage and temperature data
                 message[0] = (voltage_int >> 8) & 0xFF;
                 message[1] = voltage_int & 0xFF;
                 message[2] = (temp_int >> 8) & 0xFF;
@@ -102,9 +81,8 @@ void CAN_SEND_TASK_Tasks(void) {
             }
             break;
         }
-
         default:
-            // Handle unexpected states
+
             break;
     }
 }
