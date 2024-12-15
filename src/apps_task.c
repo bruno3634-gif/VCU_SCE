@@ -1,9 +1,3 @@
-// *****************************************************************************
-// *****************************************************************************
-// Section: Included Files
-// *****************************************************************************
-// *****************************************************************************
-
 #include "apps_task.h"
 
 #include <stdio.h>
@@ -18,14 +12,6 @@
 #include "queue.h"
 #include "semphr.h"
 
-// *****************************************************************************
-// *****************************************************************************
-// Section: Global Data Definitions
-// *****************************************************************************
-// *****************************************************************************
-
-// *****************************************************************************
-
 APPS_TASK_DATA apps_taskData;
 
 static SemaphoreHandle_t ADC0_SEMAPHORE;
@@ -35,12 +21,6 @@ typedef struct {
     uint16_t adc0value;
     uint16_t adc3value;
 } ADCValues_t;
-
-// *****************************************************************************
-// *****************************************************************************
-// Section: Application Callback Functions
-// *****************************************************************************
-// *****************************************************************************
 
 void ADC0_callback(ADCHS_CHANNEL_NUM channel, uintptr_t context) {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
@@ -58,17 +38,11 @@ void ADC3_callback(ADCHS_CHANNEL_NUM channel, uintptr_t context) {
     portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
 }
 
-// *****************************************************************************
-// *****************************************************************************
-// Section: Application Initialization and State Machine Functions
-// *****************************************************************************
-// *****************************************************************************
-
 void APPS_TASK_Initialize(void) {
     apps_taskData.state = APPS_TASK_STATE_INIT;
 
-    ADCHS_CallbackRegister(ADCHS_CH0, ADC0_callback, (uintptr_t) NULL);
-    ADCHS_CallbackRegister(ADCHS_CH3, ADC3_callback, (uintptr_t) NULL);
+    ADCHS_CallbackRegister(ADCHS_CH0, ADC0_callback, (uintptr_t)NULL);
+    ADCHS_CallbackRegister(ADCHS_CH3, ADC3_callback, (uintptr_t)NULL);
 
     vSemaphoreCreateBinary(ADC0_SEMAPHORE);
     xSemaphoreTake(ADC0_SEMAPHORE, portMAX_DELAY);
@@ -79,8 +53,7 @@ void APPS_TASK_Initialize(void) {
 
 void APPS_TASK_Tasks(void) {
     switch (apps_taskData.state) {
-        case APPS_TASK_STATE_INIT:
-        {
+        case APPS_TASK_STATE_INIT: {
             bool appInitialized = true;
 
             if (appInitialized) {
@@ -88,8 +61,7 @@ void APPS_TASK_Tasks(void) {
             }
             break;
         }
-        case APPS_TASK_STATE_SERVICE_TASKS:
-        {
+        case APPS_TASK_STATE_SERVICE_TASKS: {
             static portBASE_TYPE xStatus;
 
             ADCHS_ChannelConversionStart(ADCHS_CH3);
@@ -110,7 +82,7 @@ void APPS_TASK_Tasks(void) {
             // float voltage0 = adc0value * 3.3 / 4096;
             // float voltage3 = adc3value * 3.3 / 4096;
 
-            LED_RB10_Toggle(); // indicator of the task running
+            LED_RB10_Toggle();  // indicator of the task running
 
             ADCValues_t adcValues;
             adcValues.adc0value = adc0value;
@@ -123,8 +95,7 @@ void APPS_TASK_Tasks(void) {
 
             break;
         }
-        default:
-        {
+        default: {
             break;
         }
     }

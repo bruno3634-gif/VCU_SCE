@@ -10,9 +10,6 @@
 #include "queue.h"
 #include "semphr.h"
 
-// *****************************************************************************
-// Section: Global Data Definitions
-// *****************************************************************************
 
 INVERTER_TASK_DATA inverter_taskData;
 
@@ -23,9 +20,6 @@ typedef struct {
     uint16_t adc3value;
 } ADCValues_t;
 
-// *****************************************************************************
-// Section: Application Local Functions
-// *****************************************************************************
 
 bool CanSend_inverter(uint32_t id, uint8_t length, uint8_t *buffer) {
     return CAN1_MessageTransmit(id, length, buffer, 0, CANFD_MODE_NORMAL, CANFD_MSG_TX_DATA_FRAME);
@@ -34,10 +28,6 @@ bool CanSend_inverter(uint32_t id, uint8_t length, uint8_t *buffer) {
 long map(long x, long in_min, long in_max, long out_min, long out_max) {
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
-
-// *****************************************************************************
-// Section: Application Initialization and State Machine Functions
-// *****************************************************************************
 
 void INVERTER_TASK_Initialize(void) {
     // Initialize application state machine to its initial state

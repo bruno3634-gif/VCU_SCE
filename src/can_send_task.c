@@ -5,9 +5,6 @@
 #include "queue.h"
 #include "semphr.h"
 
-// *****************************************************************************
-// Section: Global Data Definitions
-// *****************************************************************************
 
 CAN_SEND_TASK_DATA can_send_taskData;
 static uint8_t message[8];
@@ -17,17 +14,10 @@ static uint32_t id = 0;
 static uint8_t length = 8;
 CANFD_MSG_RX_ATTRIBUTE msgAttr = CANFD_MSG_RX_DATA_FRAME;
 
-// *****************************************************************************
-// Section: Local Functions
-// *****************************************************************************
 
 bool CanSend_task(uint32_t id, uint8_t length, uint8_t *buffer) {
     return CAN1_MessageTransmit(id, length, buffer, 0, CANFD_MODE_NORMAL, CANFD_MSG_TX_DATA_FRAME);
 }
-
-// *****************************************************************************
-// Section: Application Initialization and State Machine Functions
-// *****************************************************************************
 
 void CAN_SEND_TASK_Initialize(void) {
     // Initialize application state machine to its initial state
@@ -53,7 +43,6 @@ void CAN_SEND_TASK_Tasks(void) {
             }
             break;
         }
-
         case CAN_SEND_TASK_STATE_SERVICE_TASKS:
         {
             // Receive data from the battery voltage queue with a timeout of 300 ms
@@ -86,7 +75,3 @@ void CAN_SEND_TASK_Tasks(void) {
             break;
     }
 }
-
-/*******************************************************************************
- End of File
- *******************************************************************************/

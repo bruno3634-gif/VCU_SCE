@@ -4,10 +4,6 @@
 #include "queue.h"
 #include "toolchain_specifics.h"
 
-// *****************************************************************************
-// Section: Global Data Definitions
-// *****************************************************************************
-
 VOLTAGE_MEASUREMENT_TASK_DATA voltage_measurement_taskData; // Task data structure
 
 xSemaphoreHandle voltageMeasurementSemaphore; // Semaphore for ADC synchronization
@@ -16,10 +12,6 @@ __COHERENT uint16_t voltageMeasurementValue; // Variable to store ADC result
 
 // Function prototype
 float MeasureVoltage(uint16_t bits);
-
-// *****************************************************************************
-// Section: Callback Functions
-// *****************************************************************************
 
 void ADCHS_CH8_Callback(ADCHS_CHANNEL_NUM channel, uintptr_t context) {
     static BaseType_t xHigherPriorityTaskWoken;
@@ -36,18 +28,11 @@ void ADCHS_CH8_Callback(ADCHS_CHANNEL_NUM channel, uintptr_t context) {
     }
 }
 
-// *****************************************************************************
-// Section: Utility Functions
-// *****************************************************************************
 
 unsigned int millis(void) {
     // Calculate milliseconds from core timer count
     return (unsigned int) (CORETIMER_CounterGet() / (CORE_TIMER_FREQUENCY / 1000));
 }
-
-// *****************************************************************************
-// Section: Application Initialization and State Machine Functions
-// *****************************************************************************
 
 void VOLTAGE_MEASUREMENT_TASK_Initialize(void) {
     // Initialize state machine
@@ -74,7 +59,6 @@ void VOLTAGE_MEASUREMENT_TASK_Tasks(void) {
             }
             break;
         }
-
         case VOLTAGE_MEASUREMENT_TASK_STATE_SERVICE_TASKS:
         {
             // Wait for ADC conversion result
@@ -85,10 +69,8 @@ void VOLTAGE_MEASUREMENT_TASK_Tasks(void) {
             ADCHS_ChannelConversionStart(ADCHS_CH8);
             break;
         }
-
         default:
         {
-            // Handle unexpected states
             break;
         }
     }
@@ -121,9 +103,7 @@ float MeasureVoltage(uint16_t bits) {
             previousMillis = currentMillis;
         }
     }
-
     // Send voltage to the queue
     xQueueOverwrite(Bat_Voltage_Queue, &PDM_Voltage);
-
     return PDM_Voltage;
 }

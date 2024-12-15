@@ -1,15 +1,9 @@
 #include "as_emergency_task.h"
-
 #include "../SCE_VCU_FreeRTOS.X/queue_manager.h"
 #include "FreeRTOS.h"
 #include "definitions.h"
 #include "portmacro.h"
 #include "queue.h"
-// *****************************************************************************
-// *****************************************************************************
-// Section: Global Data Definitions
-// *****************************************************************************
-// *****************************************************************************
 
 AS_EMERGENCY_TASK_DATA as_emergency_taskData;
 
@@ -24,12 +18,6 @@ int time_counter = 0; // used to count the time for the emergency buzzer
 Received_CANMessage CAN_R_Q; // received CAN message  from the queue
 int value = 0;
 int prev_value = 0;
-
-// *****************************************************************************
-// *****************************************************************************
-// Section: Application Initialization and State Machine Functions
-// *****************************************************************************
-// *****************************************************************************
 
 void AS_EMERGENCY_TASK_Initialize(void) {
     as_emergency_taskData.state = AS_EMERGENCY_TASK_STATE_INIT;

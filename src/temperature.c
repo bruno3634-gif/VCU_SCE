@@ -5,16 +5,8 @@
 #include "queue.h"
 #include "semphr.h"
 
-// *****************************************************************************
-// Section: Global Data Definitions
-// *****************************************************************************
-
 TEMPERATURE_DATA temperatureData;
 SemaphoreHandle_t ADC9_Temp_SEMAPHORE;
-
-// *****************************************************************************
-// Section: Callback Functions
-// *****************************************************************************
 
 void ADCHS_CH9_Callback(ADCHS_CHANNEL_NUM channel, uintptr_t context) {
     static BaseType_t xHigherPriorityTaskWoken = pdFALSE;
@@ -26,10 +18,6 @@ void ADCHS_CH9_Callback(ADCHS_CHANNEL_NUM channel, uintptr_t context) {
         portYIELD();
     }
 }
-
-// *****************************************************************************
-// Section: Utility Functions
-// *****************************************************************************
 
 float MeasureTemperature(uint16_t bits) {
     const float SERIES_RESISTOR = 10000.0f; // 10kΩ resistor
@@ -43,7 +31,6 @@ float MeasureTemperature(uint16_t bits) {
     if (bits == 0) {
         return -273.0f; // Absolute zero for invalid ADC value
     }
-
     // Calculate voltage from ADC bits
     float voltage = (float) bits * V_REF / ADC_MAX;
 
@@ -60,11 +47,6 @@ float MeasureTemperature(uint16_t bits) {
 
     return roundf(steinhart);
 }
-
-// *****************************************************************************
-// Section: Application Functions
-// *****************************************************************************
-// Initialize the temperature task
 
 void TEMPERATURE_Initialize(void) {
     // Initialize state machine
@@ -119,10 +101,8 @@ void TEMPERATURE_Tasks(void) {
 
             break;
         }
-
         default:
         {
-            // Handle invalid states
             break;
         }
     }
