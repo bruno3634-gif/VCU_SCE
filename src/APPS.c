@@ -5,30 +5,30 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//#include "utils.h"
+// #include "utils.h"
 
-float APPS_MIN_Volts = 0.0;  // Minimum voltage of the APPS
-uint16_t APPS_MIN_bits = 0;  // Minimum bits of the APPS
+float APPS_MIN_Volts = 0.0; // Minimum voltage of the APPS
+uint16_t APPS_MIN_bits = 0; // Minimum bits of the APPS
 
-float APPS_MAX_Volts = 0.0;  // Maximum voltage of the APPS
-uint16_t APPS_MAX_bits = 0;  // Maximum bits of the APPS
+float APPS_MAX_Volts = 0.0; // Maximum voltage of the APPS
+uint16_t APPS_MAX_bits = 0; // Maximum bits of the APPS
 
-float APPS_Tolerance_Volts = 0.0;  // Tolerance in volts of the APPS
-uint16_t APPS_Tolerance_bits = 0;  // Tolerance in bits of the APPS
+float APPS_Tolerance_Volts = 0.0; // Tolerance in volts of the APPS
+uint16_t APPS_Tolerance_bits = 0; // Tolerance in bits of the APPS
 
-uint16_t APPS_Bit_Resolution = 4095;  // 12 bits
-float APPS_Voltage = 3.3;             // power supply voltage
+uint16_t APPS_Bit_Resolution = 4095; // 12 bits
+float APPS_Voltage = 3.3; // power supply voltage
 
-uint16_t APPS_Delta = 0;  // Delta value of the APPS
+uint16_t APPS_Delta = 0; // Delta value of the APPS
 
-uint16_t APPS1 = 0;                   // Value of the APPS1
-uint16_t APPS2 = 0;                   // Value of the APPS2
-uint16_t APPS_Mean = 0;               // Mean value of the APPS
-uint16_t APPS_Percentage = 0;         // Percentage of the APPS 0-100
-uint16_t APPS_Percentage_1000 = 0;    // Value of the APPS 0-1000
-uint16_t APPS_functional_region = 0;  // Range of the APPS ((max - tolerance) - (min + tolerance))
+uint16_t APPS1 = 0; // Value of the APPS1
+uint16_t APPS2 = 0; // Value of the APPS2
+uint16_t APPS_Mean = 0; // Mean value of the APPS
+uint16_t APPS_Percentage = 0; // Percentage of the APPS 0-100
+uint16_t APPS_Percentage_1000 = 0; // Value of the APPS 0-1000
+uint16_t APPS_functional_region = 0; // Range of the APPS ((max - tolerance) - (min + tolerance))
 
-bool APPS_Error = false;  // Error of the APPS
+bool APPS_Error = false; // Error of the APPS
 
 void APPS_CalculateFunctionalRegion(void);
 uint16_t APPS_InvertValue(uint16_t apps2);
@@ -41,11 +41,12 @@ bool APPS_Is10PercentApart(uint16_t apps1, uint16_t apps2);
 bool APPS_CheckError(uint16_t apps1, uint16_t apps2);
 uint16_t APPS_ToPercentage(uint16_t apps_mean);
 uint16_t APPS_ToPercentage_1000(uint16_t apps_mean);
-
-long map(long x, long in_min, long in_max, long out_min, long out_max) {
+/*
+ * long map(long x, long in_min, long in_max, long out_min, long out_max) {
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
+ */
 
 /// @brief Update the APPS values
 /// @param min_volts minimum voltage that the APPS can reach
@@ -124,13 +125,14 @@ bool APPS_Is10PercentApart(uint16_t apps1, uint16_t apps2) {
     // uint16_t total = apps1 + apps2;
     // return (total <= 3686.4 || total >= 4505.6);
 
-    return (apps1 < (apps2 * 0.9)) || (apps1 > (apps2 * 1.1));
+    return (apps1 < (apps2 * 0.8)) || (apps1 > (apps2 * 1.2));
 }
 
 /// @brief identify if there is a short circuit in the APPS to gnd or vcc
 /// @param apps1
 /// @param apps2
 /// @return
+
 bool APPS_ShortCircuit(uint16_t apps1, uint16_t apps2) {
     return (apps1 < 100) || (apps2 < 100) || (apps1 > 4000) || (apps2 > 4000);
 }
@@ -139,6 +141,7 @@ bool APPS_ShortCircuit(uint16_t apps1, uint16_t apps2) {
 /// @param apps1
 /// @param apps2
 /// @return
+
 bool APPS_ShortedTogether(uint16_t apps1, uint16_t apps2) {
     return ((abs(apps1 - (apps2 + APPS_Delta))) < 20);
 }
@@ -176,8 +179,8 @@ bool APPS_CheckError(uint16_t apps1, uint16_t apps2) {
 
 bool APPS_TimedOut(uint16_t apps1, uint16_t apps2) {
     static unsigned long lastTime = 0;
-    unsigned long currentTime;
-    uint16_t timeout = 100;  // ms
+    static unsigned long currentTime = 0;
+    uint16_t timeout = 100; // ms
 
     if (APPS_CheckError(apps1, apps2)) {
         // Error
@@ -252,8 +255,8 @@ int APPS_Function(uint16_t apps1, uint16_t apps2) {
             APPS_Percentage = 100;
             APPS_Percentage_1000 = 1000;
         } else {
-            APPS_Percentage = map(APPS_Mean, APPS_MIN_bits + APPS_Tolerance_bits, APPS_MAX_bits - APPS_Tolerance_bits, 0, 100);
-            APPS_Percentage_1000 = map(APPS_Mean, APPS_MIN_bits + APPS_Tolerance_bits, APPS_MAX_bits - APPS_Tolerance_bits, 0, 1000);
+            //APPS_Percentage = map(APPS_Mean, APPS_MIN_bits + APPS_Tolerance_bits, APPS_MAX_bits - APPS_Tolerance_bits, 0, 100);
+            //APPS_Percentage_1000 = map(APPS_Mean, APPS_MIN_bits + APPS_Tolerance_bits, APPS_MAX_bits - APPS_Tolerance_bits, 0, 1000);
         }
 
         // limit the percentage
@@ -291,6 +294,7 @@ void APPS_PrintValues(void) {
 }
 
 // TODO auto calibration mode
+
 void AUTO_CALIBRATION(uint16_t APPS1, uint16_t APPS2) {
     static uint16_t APPS1_MIN = 0;
     static uint16_t APPS1_MAX = 0;

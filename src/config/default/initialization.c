@@ -211,10 +211,12 @@ void SYS_Initialize ( void* data )
     APPS_TASK_Initialize();
     VOLTAGE_MEASUREMENT_TASK_Initialize();
     INVERTER_TASK_Initialize();
+    PRINTINGF_Initialize();
     R2D_TASK_Initialize();
     AS_EMERGENCY_TASK_Initialize();
     MAIN_TASK_Initialize();
     CAN_READ_TASK_Initialize();
+    TEMPERATURE_Initialize();
 
 
     EVIC_Initialize();

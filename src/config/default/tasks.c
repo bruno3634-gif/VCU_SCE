@@ -68,7 +68,7 @@ static void lCAN_SEND_TASK_Tasks(  void *pvParameters  )
     while(true)
     {
         CAN_SEND_TASK_Tasks();
-        vTaskDelay(100U / portTICK_PERIOD_MS);
+        vTaskDelay(300U / portTICK_PERIOD_MS);
     }
 }
 /* Handle for the APPS_TASK_Tasks. */
@@ -79,7 +79,7 @@ static void lAPPS_TASK_Tasks(  void *pvParameters  )
     while(true)
     {
         APPS_TASK_Tasks();
-        vTaskDelay(500U / portTICK_PERIOD_MS);
+        vTaskDelay(50U / portTICK_PERIOD_MS);
     }
 }
 /* Handle for the VOLTAGE_MEASUREMENT_TASK_Tasks. */
@@ -90,7 +90,7 @@ static void lVOLTAGE_MEASUREMENT_TASK_Tasks(  void *pvParameters  )
     while(true)
     {
         VOLTAGE_MEASUREMENT_TASK_Tasks();
-        vTaskDelay(200U / portTICK_PERIOD_MS);
+        vTaskDelay(300U / portTICK_PERIOD_MS);
     }
 }
 /* Handle for the INVERTER_TASK_Tasks. */
@@ -102,6 +102,17 @@ static void lINVERTER_TASK_Tasks(  void *pvParameters  )
     {
         INVERTER_TASK_Tasks();
         vTaskDelay(50U / portTICK_PERIOD_MS);
+    }
+}
+/* Handle for the PRINTINGF_Tasks. */
+TaskHandle_t xPRINTINGF_Tasks;
+
+static void lPRINTINGF_Tasks(  void *pvParameters  )
+{   
+    while(true)
+    {
+        PRINTINGF_Tasks();
+        vTaskDelay(200U / portTICK_PERIOD_MS);
     }
 }
 /* Handle for the R2D_TASK_Tasks. */
@@ -148,6 +159,17 @@ static void lCAN_READ_TASK_Tasks(  void *pvParameters  )
         vTaskDelay(50U / portTICK_PERIOD_MS);
     }
 }
+/* Handle for the TEMPERATURE_Tasks. */
+TaskHandle_t xTEMPERATURE_Tasks;
+
+static void lTEMPERATURE_Tasks(  void *pvParameters  )
+{   
+    while(true)
+    {
+        TEMPERATURE_Tasks();
+        vTaskDelay(300U / portTICK_PERIOD_MS);
+    }
+}
 
 
 
@@ -182,7 +204,7 @@ void SYS_Tasks ( void )
                 "CAN_SEND_TASK_Tasks",
                 1024,
                 NULL,
-                3,
+                2,
                 &xCAN_SEND_TASK_Tasks);
 
     /* Create OS Thread for APPS_TASK_Tasks. */
@@ -190,7 +212,7 @@ void SYS_Tasks ( void )
                 "APPS_TASK_Tasks",
                 1024,
                 NULL,
-                5,
+                3,
                 &xAPPS_TASK_Tasks);
 
     /* Create OS Thread for VOLTAGE_MEASUREMENT_TASK_Tasks. */
@@ -206,15 +228,23 @@ void SYS_Tasks ( void )
                 "INVERTER_TASK_Tasks",
                 1024,
                 NULL,
-                3,
+                4,
                 &xINVERTER_TASK_Tasks);
+
+    /* Create OS Thread for PRINTINGF_Tasks. */
+    (void) xTaskCreate((TaskFunction_t) lPRINTINGF_Tasks,
+                "PRINTINGF_Tasks",
+                1024,
+                NULL,
+                1,
+                &xPRINTINGF_Tasks);
 
     /* Create OS Thread for R2D_TASK_Tasks. */
     (void) xTaskCreate((TaskFunction_t) lR2D_TASK_Tasks,
                 "R2D_TASK_Tasks",
                 1024,
                 NULL,
-                3,
+                4,
                 &xR2D_TASK_Tasks);
 
     /* Create OS Thread for AS_EMERGENCY_TASK_Tasks. */
@@ -222,7 +252,7 @@ void SYS_Tasks ( void )
                 "AS_EMERGENCY_TASK_Tasks",
                 1024,
                 NULL,
-                1,
+                5,
                 &xAS_EMERGENCY_TASK_Tasks);
 
     /* Create OS Thread for MAIN_TASK_Tasks. */
@@ -230,7 +260,7 @@ void SYS_Tasks ( void )
                 "MAIN_TASK_Tasks",
                 1024,
                 NULL,
-                -2,
+                0,
                 &xMAIN_TASK_Tasks);
 
     /* Create OS Thread for CAN_READ_TASK_Tasks. */
@@ -240,6 +270,14 @@ void SYS_Tasks ( void )
                 NULL,
                 5,
                 &xCAN_READ_TASK_Tasks);
+
+    /* Create OS Thread for TEMPERATURE_Tasks. */
+    (void) xTaskCreate((TaskFunction_t) lTEMPERATURE_Tasks,
+                "TEMPERATURE_Tasks",
+                256,
+                NULL,
+                1,
+                &xTEMPERATURE_Tasks);
 
 
 
